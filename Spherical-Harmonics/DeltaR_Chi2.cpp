@@ -6,13 +6,14 @@ using namespace std;
 int main(){
 	int numElements = 2664;
 	ofstream myfile;
-	myfile.open("RSquared.Y00-Y08.txt");
+	myfile.open("RSquared.Y00-Y08test.txt");
 	double theta[numElements];
 	double phi[numElements];
 	double r[numElements];
 	double sphHar[numElements];
 	double Pi = M_PI;
 	double R2=0.0;
+	double Chi2=0.0;
 	
 // Obtain the r (Gain or Phase) data
 	cout << "Enter r: "<< endl;
@@ -67,9 +68,13 @@ int main(){
 		R2 += pow((r[n]-sphHar[n]),2);
 	}
 	R2 = R2/numElements;
-	
+// Calculate Chi^2
+	for(int n=0; n < numElements; n++){
+		Chi2 += pow((r[n]-sphHar[n]),2)/sphHar[n];
+	}
 // Close file
 	myfile << "Delta R Squared / N: "<< R2 << endl;
+	myfile << "Chi^2: "<< Chi2 << endl;
 	myfile.close();
 	return 0;
 }
