@@ -1,2 +1,0 @@
-Delta R Squared / N: 0.00324974
-Chi^2: 35.4153
