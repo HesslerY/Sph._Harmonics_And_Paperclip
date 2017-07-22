@@ -7,7 +7,7 @@ int main(){
 	int numElements = 2664;
 	int numCoeff = 13;
 	ofstream myfile;
-	myfile.open("FitTest.P83.33.Y00-Y12.txt");
+	myfile.open("FitTest.P83.33.Y00-Y012.txt");
 	double theta[numElements];
 	double phi[numElements];
 	double r[numElements];
@@ -16,6 +16,7 @@ int main(){
 	double AvgDev=0.0;
 	double Chi2=0.0;
 	double coeff[numCoeff];
+	
 // Obtain the Coefficients
 	cout << "Enter the coefficients for L=0 L=1 .... L=12 with enters in between:"<< endl;
 	fill(coeff, coeff+numCoeff, 0.0);
@@ -71,9 +72,9 @@ int main(){
 		+coeff[9]*(1/256.0)*sqrt(19/Pi)*(315*cos(theta[p])- 4620*pow(cos(theta[p]),3) + 18018*pow(cos(theta[p]),5) - 25740*pow(cos(theta[p]),7) + 12155*pow((cos(theta[p])),9))
 //Y10					
 		+coeff[10]*(1/512.0)*sqrt(21/Pi)*(-63 +3465*pow(cos(theta[p]),2) - 30030*pow(cos(theta[p]),4) + 90090*pow(cos(theta[p]),6) -109395*pow((cos(theta[p])),8)+46189*pow(cos(theta[p]),10))		
-//Y11
+//Y011
 		+coeff[11]*(1/512.0)*sqrt(23/Pi)*(-693*pow(cos(theta[p]),1) +15015*pow(cos(theta[p]),3) - 90090*pow(cos(theta[p]),5) +218790*pow((cos(theta[p])),7)-230945*pow(cos(theta[p]),9)+88179*pow(cos(theta[p]),11))
-//Y12
+//Y012
 		+coeff[12]*(1/2048.0)*sqrt(25/Pi)*(231 -18018*pow(cos(theta[p]),2) +225225*pow(cos(theta[p]),4) - 1021020*pow(cos(theta[p]),6) +2078505*pow((cos(theta[p])),8)-1939938*pow(cos(theta[p]),10)+676039*pow(cos(theta[p]),12))
 		;
 	}
