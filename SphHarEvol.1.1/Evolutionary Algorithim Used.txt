@@ -1,0 +1,11 @@
+Evolutionary Algorithm Used:
+
+Every generation, all 100 species are tested and assigned a fitness score.
+
+Algorithm 1: (somewhat similar to Reproduction in Kai's code) top 10% move unaltered to the next generation.
+
+Algorithm 2: (Akin to Point Mutation) 10 randomly chosen species have their fitness scores compared (a tournament), with the best species having 10 offspring. Each offspring has a random position in the parent species's array chosen and mutated to another random number. This is algorithm is done 3 times, for a total of 30 offspring (from 3 parents).
+
+Algorithm 3: (Akin to Crossover) 20 random species are chosen, two separate tournaments are run with 10 species each, and the two best species will have 5 pairs of 2 offspring: randomly chosen positions on the parent species's arrays have their values switched to produce a pair of offspring. This algorithm is done 6 times, for a total of 60 offspring (from 6 parents).
+
+To summarize, 10% are from algorithm 1, 30% from algorithm 2, and 60% are from algorithm 3 (this is done in the spirit of the percentages from Kai's code)
