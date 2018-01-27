@@ -86,23 +86,23 @@ int main()
 // Sum the spherical harmonic values by half-degree increments from the Min to Max theta values
 // Note: I would have loved to make this a seperate function, but I found that passing matrices is surprisingly challenging in c++. Sorry!
 			for (double degree = Min * Pi / 180; degree <= Max *Pi / 180; degree = degree + Pi/360){
-				Sum += 
+				Sum += (
 //Y00		
 					pop[i][0]*(1/2.0)*(1/sqrt(Pi)) 
 //Y01
-					+pop[i][1]*pow(10,-6)*(1/2.0)*sqrt(3/Pi)*cos(degree)
+					+pop[i][1]*(1/2.0)*sqrt(3/Pi)*cos(degree)
 //Y02
 					+pop[i][2]*(1/4.0)*sqrt(5/Pi)*(3*pow(cos(degree), 2)- 1)
 //Y03
-					+pop[i][3]*pow(10, -7)*(1/4.0)*sqrt(7/Pi)*(5*pow(cos(degree),3)- 3*cos(degree))
+					+pop[i][3]*(1/4.0)*sqrt(7/Pi)*(5*pow(cos(degree),3)- 3*cos(degree))
 //Y04
 					+pop[i][4]*(3/16.0)*sqrt(1/Pi)*(35*pow(cos(degree),4) - 30*pow(cos(degree),2)+3)
 //Y05
-					+pop[i][5]*pow(10,-7)*(1/16.0)*sqrt(11/Pi)*(15*cos(degree) - 70*pow(cos(degree),3)+63*pow(cos(degree),5))
+					+pop[i][5]*(1/16.0)*sqrt(11/Pi)*(15*cos(degree) - 70*pow(cos(degree),3)+63*pow(cos(degree),5))
 //Y06
 					+pop[i][6]*(1/32.0)*sqrt(13/Pi)*(-5 + 105*pow(cos(degree),2)-315*pow(cos(degree),4) + 231*pow(cos(degree),6))
 //Y07					
-					+pop[i][7]*pow(10, -7)*(1/32.0)*sqrt(15/Pi)*(-35*cos(degree)+ 315*pow(cos(degree),3) -693*pow(cos(degree),5) + 429*pow(cos(degree),7))
+					+pop[i][7]*(1/32.0)*sqrt(15/Pi)*(-35*cos(degree)+ 315*pow(cos(degree),3) -693*pow(cos(degree),5) + 429*pow(cos(degree),7))
 //Y08					
 					+pop[i][8]*(1/256.0)*sqrt(17/Pi)*(35 - 1260*pow(cos(degree),2) + 6930*pow(cos(degree),4) - 12012*pow(cos(degree),6) + 6435*pow((cos(degree)),8))
 //Y09
@@ -113,7 +113,7 @@ int main()
 					+pop[i][11]*(1/512.0)*sqrt(23/Pi)*(-693*pow(cos(degree),1) +15015*pow(cos(degree),3) - 90090*pow(cos(degree),5) +218790*pow((cos(degree)),7)-230945*pow(cos(degree),9)+88179*pow(cos(degree),11))
 //Y012
 					+pop[i][12]*(1/2048.0)*sqrt(25/Pi)*(231 -18018*pow(cos(degree),2) +225225*pow(cos(degree),4) - 1021020*pow(cos(degree),6) +2078505*pow((cos(degree)),8)-1939938*pow(cos(degree),10)+676039*pow(cos(degree),12))
-					;
+					)*sin(degree);
 			}
 // Finally, we give the summed values of the spherical harmonic from theta min to theta max as the test score (a rough kind of integration by .5 degree increments)			
 			testScores[i] = Sum;
@@ -342,23 +342,23 @@ int main()
 			
 // Sum the spherical harmonic values by half-degree increments from the Min to Max theta values
 		for (double degree = Min * Pi / 180; degree <= Max *Pi / 180; degree = degree + Pi/360){
-			Sum += 
+			Sum += (
 //Y00		
 				pop[i][0]*(1/2.0)*(1/sqrt(Pi)) 
 //Y01
-				+pop[i][1]*pow(10,-6)*(1/2.0)*sqrt(3/Pi)*cos(degree)
+				+pop[i][1]*(1/2.0)*sqrt(3/Pi)*cos(degree)
 //Y02
 				+pop[i][2]*(1/4.0)*sqrt(5/Pi)*(3*pow(cos(degree), 2)- 1)
 //Y03
-				+pop[i][3]*pow(10, -7)*(1/4.0)*sqrt(7/Pi)*(5*pow(cos(degree),3)- 3*cos(degree))
+				+pop[i][3]*(1/4.0)*sqrt(7/Pi)*(5*pow(cos(degree),3)- 3*cos(degree))
 //Y04
 				+pop[i][4]*(3/16.0)*sqrt(1/Pi)*(35*pow(cos(degree),4) - 30*pow(cos(degree),2)+3)
 //Y05
-				+pop[i][5]*pow(10,-7)*(1/16.0)*sqrt(11/Pi)*(15*cos(degree) - 70*pow(cos(degree),3)+63*pow(cos(degree),5))
+				+pop[i][5]*(1/16.0)*sqrt(11/Pi)*(15*cos(degree) - 70*pow(cos(degree),3)+63*pow(cos(degree),5))
 //Y06
 				+pop[i][6]*(1/32.0)*sqrt(13/Pi)*(-5 + 105*pow(cos(degree),2)-315*pow(cos(degree),4) + 231*pow(cos(degree),6))
 //Y07					
-				+pop[i][7]*pow(10, -7)*(1/32.0)*sqrt(15/Pi)*(-35*cos(degree)+ 315*pow(cos(degree),3) -693*pow(cos(degree),5) + 429*pow(cos(degree),7))
+				+pop[i][7]*(1/32.0)*sqrt(15/Pi)*(-35*cos(degree)+ 315*pow(cos(degree),3) -693*pow(cos(degree),5) + 429*pow(cos(degree),7))
 //Y08					
 				+pop[i][8]*(1/256.0)*sqrt(17/Pi)*(35 - 1260*pow(cos(degree),2) + 6930*pow(cos(degree),4) - 12012*pow(cos(degree),6) + 6435*pow((cos(degree)),8))
 //Y09
@@ -369,7 +369,7 @@ int main()
 				+pop[i][11]*(1/512.0)*sqrt(23/Pi)*(-693*pow(cos(degree),1) +15015*pow(cos(degree),3) - 90090*pow(cos(degree),5) +218790*pow((cos(degree)),7)-230945*pow(cos(degree),9)+88179*pow(cos(degree),11))
 //Y012
 				+pop[i][12]*(1/2048.0)*sqrt(25/Pi)*(231 -18018*pow(cos(degree),2) +225225*pow(cos(degree),4) - 1021020*pow(cos(degree),6) +2078505*pow((cos(degree)),8)-1939938*pow(cos(degree),10)+676039*pow(cos(degree),12))
-				;
+				)*sin(degree);
 		}
 // Finally, we give the summed values of the spherical harmonic from theta min to theta max as the test score (a rough kind of integration by .5 degree increments)			
 		finalScores[i] = Sum;
