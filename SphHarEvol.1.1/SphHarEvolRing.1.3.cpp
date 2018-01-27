@@ -12,7 +12,7 @@
 #include <vector>
 using namespace std;
 
-double Pi = 3.14159;
+double Pi = 3.14159265359;
 int SphHarMAX = 13;
 int PopMAX = 100;
 
@@ -111,7 +111,7 @@ int main()
 	}
 // Now we normalize	
 	for (int i = 0; i <= PopMAX - 1; i++){
-		double counter = integrateSpecies(vPop, i, 90, 180);
+		double counter = pow(integrateSpecies(vPop, i, 90, 180)*0.0548594, 0.5);
 		for (int j = 0; j <= SphHarMAX - 1; j++){
 			pop[i][j] = pop[i][j] / counter;
 		}		
@@ -173,11 +173,12 @@ int main()
 			}
 		}
 	
-// We print out the highest ranking species's score and it's array in mathematica format, for easy plotting				
-/*		cout << "First Score in Mathematica Format with score "<< rankedTestScores[0]<< " : " << endl; 
-		for (int i = 0; i <= SphHarMAX-1; i++){
-			cout << "m1Y0" << i<< " = " << rankedPop[0][i] << endl;
-		}*/
+// We print out the highest ranking species's score and it's array in mathematica format, for easy plotting	
+//		cout <<rankedTestScores[0]<< endl;	
+//		cout << "Generation: " << g << " First Score in Mathematica Format with score "<< rankedTestScores[0]<< " : " << endl; 
+//		for (int i = 0; i <= SphHarMAX-1; i++){
+//			cout << "m1Y0" << i<< " = " << rankedPop[0][i] << endl;
+//		}*/
 // Finally, we copy over the top 10 best species from pop to nextPop		
 		for (int i = 0; i <= 10-1; i++){
 			for (int j = 0; j <= SphHarMAX-1; j++){
