@@ -140,7 +140,7 @@ int main()
 
 // Now, to test the curent population, we integrate each species from [theta-spread/2] to [theta + spread/2]
 		for (int i = 0; i <= PopMAX - 1; i++){
-			testScores[i] = integrateSpecies( vPop, i, Theta, Spread);
+			testScores[i] = integrateSpecies(vPop, i, Theta, Spread)*0.0548594;
 		}
 
 // The following matrix will hold the next generation's species. In the end of the evolution, we will make pop = nextPop, so the next evolution afterwards will act on nextPop 
@@ -174,7 +174,7 @@ int main()
 		}
 	
 // We print out the highest ranking species's score and it's array in mathematica format, for easy plotting	
-//		cout <<rankedTestScores[0]<< endl;	
+		cout <<rankedTestScores[0]<< endl;	
 //		cout << "Generation: " << g << " First Score in Mathematica Format with score "<< rankedTestScores[0]<< " : " << endl; 
 //		for (int i = 0; i <= SphHarMAX-1; i++){
 //			cout << "m1Y0" << i<< " = " << rankedPop[0][i] << endl;
@@ -327,7 +327,7 @@ int main()
 
 // Now, to test the curent population, we integrate each species from [theta-spread/2] to [theta + spread/2]
 	for (int i = 0; i <= PopMAX - 1; i++){
-		finalScores[i] = integrateSpecies( vPop, i, Theta, Spread);
+		finalScores[i] = integrateSpecies(vPop, i, Theta, Spread)*0.0548594;
 	}	
 	
 // We want to organize the population by their testScores, so we make a temporary matrix to hold the ranked initial population:rankedPop 
