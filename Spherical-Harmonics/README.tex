@@ -44,10 +44,10 @@ Evaluating the file should now allow the data to be plotted and fitted. The fit 
 
 \section{How to Find Chi$^2$ and the Average Deviation}
 
-First, open \texttt{general\_AvgDev\_Chi2.cpp} and edit the output file name to your choosing. To stay organized, I suggest:\\ \\
+%First, open \texttt{general\_AvgDev\_Chi2.cpp} and edit the output file name to your choosing. To stay organized, I suggest:\\ \\
  FitTest.(G for gain or P for Phase)(frequency).Y00-Y(largest m-value being used, default is 0)(largest L-value being used, default is 12) \\ \\
 If you desire, further spherical harmonics can be added in the file below the Y012 equation, or current harmonics can be commented out for a simpler fit. Don't forget to change numCoeff in the file to however many harmonics you have decided to use.
-Next, obtain the fit coefficients from the previous step. You will need to enter each one-by-one into the \texttt{general\_AvgDev\_Chi2.cpp} file. Note that the script cannot handle scientific notation, so I suggest placing each coefficient into an excel column with an enter in front to evaluate the scientific notation and then copy-pasting the entire column into the C++ script. Next, the file needs the gain or phase data. Copy and paste the 2664 values from the excel worksheet into the script. Finally, enter the directory you have saved the C++ script in and find the file you have named above. In it, you will find the Average Deviation and the Chi$^2$.
+Next, obtain the fit coefficients from the previous step. You will need to enter each one-by-one into the \texttt{general\_AvgDev\_Chi2.cpp} file. Note that the script cannot handle scientific notation, so I suggest placing each coefficient into an excel column with an enter in front to evaluate the scientific notation and then copy-pasting the entire column into the C++ script. Next, the file needs the gain or phase data. Copy and paste the 2664 values from the excel worksheet into the script. Finally, enter the directory you have saved the C++ script in and find the file you have named above. In it, you will find the Average Deviation and the Chi$^2$. ddddd
 
 
 \section{Additional Information}

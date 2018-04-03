@@ -10,6 +10,7 @@
 #include <ctime>
 #include <stdlib.h>
 #include <vector>
+
 using namespace std;
 
 double Pi = 3.14159265359;
@@ -84,12 +85,15 @@ int main()
 	int Gen = 0;
 	srand(time(NULL));
 	
-// Enter the goal theta and spread
+/*// Enter the goal theta and spread
 	cout << "Enter the goal theta and spread (in degrees), and generations in the following format: theta spread generations" << endl;
 	cin >> Theta;
 	cin >> Spread;
 	cin >> Gen;
-	
+*/
+	Theta = 90;
+	Spread = 20;
+	Gen = 100;
 // Randomly fill the population. First step is to give each value in each species random number between -1 and 1. Then, we normalize the species values to 1
 	for (int i = 0; i <= PopMAX - 1; i++){
 		for (int j = 0; j <= SphHarMAX - 1; j++){
@@ -174,7 +178,7 @@ int main()
 		}
 	
 // We print out the highest ranking species's score and it's array in mathematica format, for easy plotting	
-		cout <<rankedTestScores[0]<< endl;	
+//		cout <<rankedTestScores[0]<< endl;	
 //		cout << "Generation: " << g << " First Score in Mathematica Format with score "<< rankedTestScores[0]<< " : " << endl; 
 //		for (int i = 0; i <= SphHarMAX-1; i++){
 //			cout << "m1Y0" << i<< " = " << rankedPop[0][i] << endl;
@@ -363,7 +367,7 @@ int main()
 		}
 		cout << endl;
 	}	
-		
+/*		
 // We also print out the whole population, to see the spread of the scores:
 	cout << endl << endl << "Final Population:" << endl;
 
@@ -375,7 +379,7 @@ int main()
 		cout << endl;
 	}		
 
-
+*/
 
 
 return 0;

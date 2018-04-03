@@ -1,7 +1,7 @@
 
 // Written by: Suren Gourapura
 // Date: 10/28/17
-// Goal: The goal is to take a given theta angle and spread in theta to evolve an antenna using spherical harmonics that best satisfies it.
+
 
 #include <iostream>
 #include <string>
@@ -81,11 +81,17 @@ int main()
 {
 	double pop[PopMAX][SphHarMAX];
 	double Theta, Spread;
-	int Gen = 0;
-	srand(time(NULL));
-	double Y[13] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13};
-	double degree = 3.141592857/1.001;
-	double Sum = pow(
+	double Sum = 0.0;
+	int counter = 0;
+	double advCounter = 0.0;
+	double normaVal = 0.2773500981;
+	double Y[13] = {normaVal,normaVal,normaVal,normaVal,normaVal,normaVal,normaVal,normaVal,normaVal,normaVal,normaVal,normaVal,normaVal};
+	cout << "Code is running " << endl;
+	for(double degree = 0 + Pi/1440; degree <= Pi; degree = degree + Pi/1440){
+		cout << "Loop " << degree * 180 / Pi << endl;
+		counter++;
+		advCounter += sin(degree);
+		Sum += pow(
 //Y00		
 			Y[0]*(1/2.0)*(1/sqrt(Pi)) 
 //Y01
@@ -113,34 +119,14 @@ int main()
 //Y012
 			+Y[12]*(5/2048.0)*sqrt(1/Pi)*(676039*pow(cos(degree),12) - 1939938*pow(cos(degree),10) + 2078505*pow((cos(degree)),8) - 1021020*pow(cos(degree),6) + 225225*pow(cos(degree),4) - 18018*pow(cos(degree),2) + 231)
 			, 2)*sin(degree);
+	}
 	
-	cout << Sum;
+	cout << "The sum is: "<< Sum << endl;
+	cout << "The counter is: " << counter;
+	cout << "The advcounter is: " << advCounter;
 
 
 
 return 0;
 }
-/*
-// Evolution Algorithim 4: Introduce 10 random species into the population
-// First step is to give each value in each species random number between -1 and 1. Then, we normalize the species values to 1
-		for (int i = 0; i <= 9; i++){
-			for (int j = 0; j <= SphHarMAX - 1; j++){
-				nextPop[90 + i][j] = ((double)rand() / (double)(RAND_MAX))*2- 1; // gives a random value between -1 and 1
-			}
-		}		
-		
-// Now we normalize nextPop: We divide all coefficients by their integral over all space to normalize to 1
-// To pass this population off to functions, we make a 2D vector with the same values called vPop
-		for(int i=0; i<PopMAX; i++){
-			for(int j=0; j<SphHarMAX; j++){
-				vPop[i][j] = nextPop[i][j];
-			}
-		}
-// Now we normalize	
-		for (int i = 0; i <= PopMAX - 1; i++){
-			double counter = integrateSpecies(vPop, i, 90, 180);
-			for (int j = 0; j <= SphHarMAX - 1; j++){
-				nextPop[i][j] = nextPop[i][j] / counter;
-			}		
-		}
-		*/
+
