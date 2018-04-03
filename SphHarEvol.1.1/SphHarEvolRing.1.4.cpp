@@ -10,6 +10,7 @@
 #include <iomanip>
 #include <ctime>
 #include <stdlib.h>
+#include <vector>
 using namespace std;
 
 double Pi = 3.14159265359;
@@ -27,7 +28,8 @@ void insertionSort(double array[], int length){
     }
 }
 
-double integrateSpecies(double species[], int SphHarMAX, double Theta, double Spread){
+
+double integrateSpecies(vector<vector<double> >& pop, int SphHarMAX, int species, double Theta, double Spread){
 	
 	double Min, Max;
 // Make sure that the maximum is less than or equal to 180 degrees and the minimum is greater than or equal to 0
@@ -36,7 +38,7 @@ double integrateSpecies(double species[], int SphHarMAX, double Theta, double Sp
 			
 	if (Theta - Spread/2.0 < 0){Min = 0;}
 	else{Min = Theta - Spread/2.0;}
-
+	
 // We need to only integrate over the specified number of spherical harmonics, not all of them. So, we store which spherical harmonics to turn on as an additional binary coefficient.
 	int Sph[13];
 	for (int i = 0; i < 13; i++){
@@ -47,41 +49,41 @@ double integrateSpecies(double species[], int SphHarMAX, double Theta, double Sp
 			Sph[i]=0;
 		}
 	}
-
+	
 	double Sum = 0;			
-// Sum the spherical harmonic values by eighth-degree increments from the Min to Max theta values
-	for (double degree = Min * Pi / 180; degree <= Max *Pi / 180; degree = degree + Pi/1440){
+// Sum the spherical harmonic values by half-degree increments from the Min to Max theta values
+	for (double degree = Min * Pi / 180; degree <= Max *Pi / 180; degree = degree + Pi/360){
 		Sum += pow(
 //Y00		
-			Sph[0]*species[0]*(1/2.0)*(1/sqrt(Pi)) 
+			Sph[0]*pop[species][0]*(1/2.0)*(1/sqrt(Pi)) 
 //Y01
-			+Sph[1]*species[1]*(1/2.0)*sqrt(3/Pi)*cos(degree)
+			+Sph[1]*pop[species][1]*(1/2.0)*sqrt(3/Pi)*cos(degree)
 //Y02
-			+Sph[2]*species[2]*(1/4.0)*sqrt(5/Pi)*(3*pow(cos(degree), 2) - 1)
+			+Sph[2]*pop[species][2]*(1/4.0)*sqrt(5/Pi)*(3*pow(cos(degree), 2) - 1)
 //Y03
-			+Sph[3]*species[3]*(1/4.0)*sqrt(7/Pi)*(5*pow(cos(degree),3) - 3*cos(degree))
+			+Sph[3]*pop[species][3]*(1/4.0)*sqrt(7/Pi)*(5*pow(cos(degree),3) - 3*cos(degree))
 //Y04
-			+Sph[4]*species[4]*(3/16.0)*sqrt(1/Pi)*(35*pow(cos(degree),4) - 30*pow(cos(degree),2) + 3)
+			+Sph[4]*pop[species][4]*(3/16.0)*sqrt(1/Pi)*(35*pow(cos(degree),4) - 30*pow(cos(degree),2) + 3)
 //Y05
-			+Sph[5]*species[5]*(1/16.0)*sqrt(11/Pi)*(63*pow(cos(degree),5) - 70*pow(cos(degree),3) + 15*cos(degree))
+			+Sph[5]*pop[species][5]*(1/16.0)*sqrt(11/Pi)*(63*pow(cos(degree),5) - 70*pow(cos(degree),3) + 15*cos(degree))
 //Y06
-			+Sph[6]*species[6]*(1/32.0)*sqrt(13/Pi)*(231*pow(cos(degree),6) - 315*pow(cos(degree),4) + 105*pow(cos(degree),2) - 5 )
+			+Sph[6]*pop[species][6]*(1/32.0)*sqrt(13/Pi)*(231*pow(cos(degree),6) - 315*pow(cos(degree),4) + 105*pow(cos(degree),2) - 5 )
 //Y07					
-			+Sph[7]*species[7]*(1/32.0)*sqrt(15/Pi)*(429*pow(cos(degree),7) - 693*pow(cos(degree),5) + 315*pow(cos(degree),3) - 35*cos(degree))
+			+Sph[7]*pop[species][7]*(1/32.0)*sqrt(15/Pi)*(429*pow(cos(degree),7) - 693*pow(cos(degree),5) + 315*pow(cos(degree),3) - 35*cos(degree))
 //Y08					
-			+Sph[8]*species[8]*(1/256.0)*sqrt(17/Pi)*(6435*pow((cos(degree)),8) - 12012*pow(cos(degree),6) + 6930*pow(cos(degree),4) - 1260*pow(cos(degree),2) + 35)
+			+Sph[8]*pop[species][8]*(1/256.0)*sqrt(17/Pi)*(6435*pow((cos(degree)),8) - 12012*pow(cos(degree),6) + 6930*pow(cos(degree),4) - 1260*pow(cos(degree),2) + 35)
 //Y09
-			+Sph[9]*species[9]*(1/256.0)*sqrt(19/Pi)*(12155*pow((cos(degree)),9) - 25740*pow(cos(degree),7) + 18018*pow(cos(degree),5) - 4620*pow(cos(degree),3) + 315*cos(degree))
+			+Sph[9]*pop[species][9]*(1/256.0)*sqrt(19/Pi)*(12155*pow((cos(degree)),9) - 25740*pow(cos(degree),7) + 18018*pow(cos(degree),5) - 4620*pow(cos(degree),3) + 315*cos(degree))
 //Y10					
-			+Sph[10]*species[10]*(1/512.0)*sqrt(21/Pi)*(46189*pow(cos(degree),10) - 109395*pow((cos(degree)),8) + 90090*pow(cos(degree),6) - 30030*pow(cos(degree),4) + 3465*pow(cos(degree),2) - 63)		
+			+Sph[10]*pop[species][10]*(1/512.0)*sqrt(21/Pi)*(46189*pow(cos(degree),10) - 109395*pow((cos(degree)),8) + 90090*pow(cos(degree),6) - 30030*pow(cos(degree),4) + 3465*pow(cos(degree),2) - 63)		
 //Y011
-			+Sph[11]*species[11]*(1/512.0)*sqrt(23/Pi)*(88179*pow(cos(degree),11) - 230945*pow(cos(degree),9) + 218790*pow((cos(degree)),7) - 90090*pow(cos(degree),5) + 15015*pow(cos(degree),3) - 693*cos(degree))
+			+Sph[11]*pop[species][11]*(1/512.0)*sqrt(23/Pi)*(88179*pow(cos(degree),11) - 230945*pow(cos(degree),9) + 218790*pow((cos(degree)),7) - 90090*pow(cos(degree),5) + 15015*pow(cos(degree),3) - 693*cos(degree))
 //Y012
-			+Sph[12]*species[12]*(5/2048.0)*sqrt(1/Pi)*(676039*pow(cos(degree),12) - 1939938*pow(cos(degree),10) + 2078505*pow((cos(degree)),8) - 1021020*pow(cos(degree),6) + 225225*pow(cos(degree),4) - 18018*pow(cos(degree),2) + 231)
+			+Sph[12]*pop[species][12]*(5/2048.0)*sqrt(1/Pi)*(676039*pow(cos(degree),12) - 1939938*pow(cos(degree),10) + 2078505*pow((cos(degree)),8) - 1021020*pow(cos(degree),6) + 225225*pow(cos(degree),4) - 18018*pow(cos(degree),2) + 231)
 			, 2)*sin(degree);
 	}
 // Finally, we give the summed values of the spherical harmonic from theta min to theta max as the test score (a rough kind of integration by .5 degree increments)			
-	return 2*Pi*(0.125*Pi/180.0)*Sum;	// The 2 Pi is from the phi integral. The (0.125*Pi/180.0) comes from the fact that we did a discrete summation with stepsize 0.125 degrees and we want an integral
+	return Sum;	
 }
 
 
@@ -99,7 +101,7 @@ int main()
 	cin >> Spread;
 	cin >> Gen;
 */
-	SphHarMAX = 13;
+	SphHarMAX = 3;
 	Theta = 90;
 	Spread = 20;
 	Gen = 300;
@@ -115,16 +117,25 @@ int main()
 		}
 	}
 	
-// We divide all coefficients by their integral over all space to normalize to 1. Since these are orthonormal spherical harmonics, we can use a simple trick. These coefficients just need their squared sum to be 1.
-	double integral = 0;
-	for(int i =0; i < PopMAX; i++){
-		for(int j =0; j < SphHarMAX; j++){
-			integral += pow(pop[i][j], 2);
+// We divide all coefficients by their integral over all space to normalize to 1
+// To pass this population off to functions, we make a 2D vector with the same values called vPop
+	vector<vector<double> >vPop;
+	vPop.resize(PopMAX);
+	for(int i=0; i<PopMAX; i++){
+		vPop[i].resize(SphHarMAX);
+	}
+	for(int i=0; i<PopMAX; i++){
+		for(int j=0; j<SphHarMAX; j++){
+			vPop[i][j] = pop[i][j];
 		}
-		for(int j =0; j < SphHarMAX; j++){
-			pop[i][j] = pop[i][j] / sqrt(integral);
-		}	
-		integral = 0;
+	}
+	
+// Now we normalize	
+	for (int i = 0; i < PopMAX; i++){
+		double counter = pow(integrateSpecies(vPop, SphHarMAX, i, 90, 180)*0.0548594, 0.5);
+		for (int j = 0; j < SphHarMAX; j++){
+			pop[i][j] = pop[i][j] / counter;
+		}		
 	}
 
 
@@ -135,17 +146,28 @@ int main()
 		
 // The first objective is to calculate how well our current population's species are doing
 		double testScores[100];
+// To pass this population off to functions, we again make a 2D vector with the same values called vPop
+		vector<vector<double> >vPop;
+		vPop.resize(PopMAX);
+		for(int i=0; i<PopMAX; i++){
+			vPop[i].resize(SphHarMAX);
+		}
+	
+		for(int i=0; i < PopMAX; i++){
+			for(int j=0; j < SphHarMAX; j++){
+				vPop[i][j] = pop[i][j];
+			}
+		}
 
 // Now, to test the curent population, we integrate each species from [theta-spread/2] to [theta + spread/2]
 		for (int i = 0; i < PopMAX; i++){
-			testScores[i] = integrateSpecies(pop[i], SphHarMAX, Theta, Spread);
+			testScores[i] = integrateSpecies(vPop, SphHarMAX, i, Theta, Spread)*0.0548594;
 		}
 
 // The following matrix will hold the next generation's species. In the end of the evolution, we will make pop = nextPop, so the next evolution afterwards will act on nextPop 
 		double nextPop[PopMAX][SphHarMAX] = {};
 
-
-
+		
 // Evolution Algorithim 1: Take the 10 species with the best scores and pass them onto nextPop
 
 // We want to organize the population by their testScores, so we make a temporary matrix to hold the ranked initial population:rankedPop 
@@ -226,7 +248,6 @@ int main()
 			}
 // We will normalize the whole next population after all evolutionary algorithims			
 		}
-
 		
 		
 // Evolution Algorithim 3: Take 20 random species, run two seperate tournaments to find 2 parents, and [swap a random array location with each other to obtain two offspring (for both combinations)] 5 times.
@@ -254,7 +275,6 @@ int main()
 					}
 				}					
 			}
-			
 // Now, we swap one part of the species's arrays in both ways to create 2 offspring. We do this 5 times, normalizing after each one
 			int swapLocation[5]; // Create the locations for swapping
 			for (int i = 0; i < 5; i++){
@@ -279,7 +299,6 @@ int main()
 			}		
 		}
 		
-	
 		
 // Evolution Algorithim 4: Introduce 10 random species into the population
 // First step is to give each value in each species random number between -1 and 1. Then, we normalize the species values to 1
@@ -288,18 +307,22 @@ int main()
 				nextPop[90 + i][j] = ((double)rand() / (double)(RAND_MAX))*2- 1; // gives a random value between -1 and 1
 			}
 		}		
-	
+		
 // Now we normalize nextPop: We divide all coefficients by their integral over all space to normalize to 1
-		integral = 0;
-		for(int i =0; i < PopMAX; i++){
-			for(int j =0; j < SphHarMAX; j++){
-				integral += pow(nextPop[i][j], 2);
+// To pass this population off to functions, we make a 2D vector with the same values called vPop
+		for(int i=0; i < PopMAX; i++){
+			for(int j=0; j < SphHarMAX; j++){
+				vPop[i][j] = nextPop[i][j];
 			}
-			for(int j =0; j < SphHarMAX; j++){
-				nextPop[i][j] = nextPop[i][j] / sqrt(integral);
-			}	
-			integral = 0;
-		}		
+		}
+// Now we normalize	
+		for (int i = 0; i < PopMAX; i++){
+			double counter = pow(integrateSpecies(vPop, SphHarMAX, i, 90, 180)*0.0548594, 0.5);
+			for (int j = 0; j < SphHarMAX; j++){
+				nextPop[i][j] = nextPop[i][j] / counter;
+			}		
+		}
+		
 				
 // Finally, we equate the old pop to the new pop, allowing the next loop to operate on the new population
 		for (int i = 0; i < PopMAX; i++){
@@ -312,13 +335,20 @@ int main()
 
 
 /*
+
+
 // The work is done, now time to see the results of the final generation! We follow the same ranking protocol
 	double finalScores[100];
-
+	
+	for(int i=0; i < PopMAX; i++){
+		for(int j=0; j < SphHarMAX; j++){
+			vPop[i][j] = pop[i][j];
+		}
+	}
 
 // Now, to test the curent population, we integrate each species from [theta-spread/2] to [theta + spread/2]
 	for (int i = 0; i < PopMAX; i++){
-		finalScores[i] = integrateSpecies(pop[i], SphHarMAX, Theta, Spread);
+		finalScores[i] = integrateSpecies(vPop, SphHarMAX, i, Theta, Spread)*0.0548594;
 	}	
 	
 // We want to organize the population by their testScores, so we make a temporary matrix to hold the ranked initial population:rankedPop 
@@ -365,6 +395,9 @@ int main()
 		}
 		cout << endl;
 	}		
+
 */
+
+
 return 0;
 }
