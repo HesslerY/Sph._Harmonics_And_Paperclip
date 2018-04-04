@@ -311,7 +311,7 @@ int main()
 	}	// End of Evolution
 
 
-/*
+
 // The work is done, now time to see the results of the final generation! We follow the same ranking protocol
 	double finalScores[100];
 
@@ -365,6 +365,6 @@ int main()
 		}
 		cout << endl;
 	}		
-*/
+
 return 0;
 }
