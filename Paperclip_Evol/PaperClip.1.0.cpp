@@ -33,6 +33,7 @@ void CoordTransform(double oldVec[], double rotx, double roty, double rotz, doub
 	double y = oldVec[1];
 	double z = oldVec[2];
 // The below was calculated on mathematica using the 3D rotation matrices found here: https://en.wikipedia.org/wiki/Rotation_matrix#In_three_dimensions
+// We are performing rotx first, then roty, then rotz
 	newVec[0] = sin(rotx)*(y*sin(roty)*cos(rotz) + z*sin(rotz)) + cos(rotx)*(z*sin(roty)*cos(rotz) - y*sin(rotz)) + x*cos(roty)*cos(rotz);
 	newVec[1] = sin(rotz)*(y*sin(rotx)*sin(roty) + x*cos(roty)) + cos(rotx)*(z*sin(roty)*sin(rotz) + y*cos(rotz)) - z*sin(rotx)*cos(rotz);
 	newVec[2] = y*sin(rotx)*cos(roty) + z*cos(rotx)*cos(roty) - x*sin(roty);
@@ -132,12 +133,13 @@ double RotToCartesian(int numSeg, double rotx[], double roty[], double rotz[], d
 	ycoord[0] = 0;
 	zcoord[0] = 0;
 	
-	for (int i = 0; i < numSeg; i++){
+	for (int i = 0; i < numSeg + 1; i++){ // I honestly have no idea why it is numSeg + 1 instead of numSeg, but the latter doesn't work!
 		xcoord[i+1] = xcoord[i] + unitVecs[i][0];
 		ycoord[i+1] = ycoord[i] + unitVecs[i][1];
 		zcoord[i+1] = zcoord[i] + unitVecs[i][2];		
 	}	
 }
+
 
 
 
@@ -471,9 +473,9 @@ int main()
 
 		cout << "line = Line [{";
    		for (int i = 0; i < numSeg; i++){
-   	 		cout << "{" << xcoord[i] << ", " << ycoord[i] << ", "<< zcoord[i] << "}, ";
+  	 		cout << "{" << xcoord[i] << ", " << ycoord[i] << ", "<< zcoord[i] << "}, ";
 		}
-		cout << "{" << xcoord[numSeg+1] << ", " << ycoord[numSeg+1] << ", "<< zcoord[numSeg+1] << "}}] " << endl;
-	}
+		cout << "{" << xcoord[numSeg] << ", " << ycoord[numSeg] << ", "<< zcoord[numSeg] << "}}] " << endl;
+		}
 return 0;
 }

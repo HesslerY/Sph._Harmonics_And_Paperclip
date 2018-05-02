@@ -9,6 +9,7 @@ using namespace std;
 double Pi = 3.14159265359;
 int PopMAX = 100;
 
+
 // Code modified from https://codereview.stackexchange.com/questions/110793/insertion-sort-in-c
 void insertionSort(double array[], int length){ 		// Sort array into greatest -> least
     int i,j;
@@ -22,7 +23,7 @@ void insertionSort(double array[], int length){ 		// Sort array into greatest ->
 }
 
 void CoordTransform(double oldVec[], double rotx, double roty, double rotz, double newVec[]){
-// We are converting the old unit vector into a new unit vector using the rotations
+// We are calculating the next unit vector using the previous unit vector and rotations
 	double x = oldVec[0];
 	double y = oldVec[1];
 	double z = oldVec[2];
@@ -51,45 +52,37 @@ double FScore(int numSeg, double rotx[], double roty[], double rotz[]){
 // First, we need to convert from rotations to unit vector coordinates. 
 // Each unit vector corresponds to the direction that line segment is pointing relative to fixed coordinates
 // Initialize the converted array
-	double cartesian[numSeg][3];
+	double unitVecs[numSeg][3];
 
 // The first node is rotated from vertical (0,0,1)
 	double newVec[3];
 	double oldVec[] = {0,0,1};
 	CoordTransform(oldVec, rotx[0], roty[0], rotz[0], newVec);
 	for (int i = 0; i < 3; i++){
-		cartesian[0][i] = newVec[i];
+		unitVecs[0][i] = newVec[i];
 	}
-
+	
 // Now, we use loops to generate the rest of the coordinates
 	for (int i = 1; i < numSeg; i++){
 		for (int j = 0; j < 3; j++){									// Get the old vector (the point before point i)
-			oldVec[j] = cartesian[i - 1][j];
+			oldVec[j] = unitVecs[i - 1][j];
 		}
-		cout << endl;
 		CoordTransform(oldVec, rotx[i], roty[i], rotz[i], newVec);	// Calculate the new vector based on old vector and rotations
 		for (int j = 0; j < 3; j++){
-			cartesian[i][j] = newVec[j];								// Add new vectors onto cartesian
+			unitVecs[i][j] = newVec[j];								// Add new vectors onto cartesian
 		}
 	}	
 	
-	for (int i=0; i < numSeg; i++){
-		for (int j=0; j < 3; j++){
-			cout << cartesian[i][j] << " ";
-		}
-		cout << endl;
-	}
 // With [numSeg] unit vectors, we can calculate [numSeg-1] cross product vectors.
 // The magnitude of these vectors in the z direction (arbitrary choice) gives us the fitness score.
 	double crossVec[numSeg - 1][3];
 	
 	for (int i = 0; i < numSeg - 1; i++){
 		for (int j = 0; j < 3; j++){
-			oldVec[j] = cartesian[i][j];		// Initialize the old vector
-	
+			oldVec[j] = unitVecs[i][j];		// Initialize the old vector
 		}
 		for (int j = 0; j < 3; j++){
-			newVec[j] = cartesian[i + 1][j];	// Initialize the new vector
+			newVec[j] = unitVecs[i + 1][j];	// Initialize the new vector
 		}	
 		CrossProduct(oldVec, newVec, crossVec[i]);
 	}
@@ -128,6 +121,13 @@ double RotToCartesian(int numSeg, double rotx[], double roty[], double rotz[], d
 			unitVecs[i][j] = newVec[j];								// Add new vectors onto cartesian
 		}
 	}
+
+// FIX	
+	for (int i = 0; i < numSeg; i++){
+		cout << "(" << unitVecs[i][0] << ", " << unitVecs[i][1] << ", " << unitVecs[i][2] << " )" << endl;
+	}
+	cout << endl;
+	
 	
 // Now, we need to convert the unit vectors into the actual coordinates. The first point is {0,0,0} and the second point is the same as the first unit vector
 // Additional coordinates are made by adding the unit vector onto the previous coordinate
@@ -135,7 +135,8 @@ double RotToCartesian(int numSeg, double rotx[], double roty[], double rotz[], d
 	ycoord[0] = 0;
 	zcoord[0] = 0;
 	
-	for (int i = 0; i < numSeg; i++){
+	for (int i = 0; i < numSeg + 1; i++){ // I honestly have no idea why it is numSeg + 1 instead of numSeg, but the latter doesn't work!
+		cout << "one" << endl;
 		xcoord[i+1] = xcoord[i] + unitVecs[i][0];
 		ycoord[i+1] = ycoord[i] + unitVecs[i][1];
 		zcoord[i+1] = zcoord[i] + unitVecs[i][2];		
@@ -143,22 +144,28 @@ double RotToCartesian(int numSeg, double rotx[], double roty[], double rotz[], d
 }
 
 
-int main ()
+int main()
 {
-	double rotx[] = {Pi/2,0,0, 0 };
-	double roty[] = {0,0,0,0 };
-	double rotz[] = {0, Pi/2, Pi/2, Pi/2};
-	double xcoord[5];
-	double ycoord[5];
-	double zcoord[5];
-	int numSeg = 4;	
+	double rotx[] = {2.175, 3.1225, 5.1008, 4.65079, 3.8389};
+	double roty[] = {4.99441, 3.1206, 2.98541, 4.09758, 1.70756};
+	double rotz[] = {4.93152, 5.34858, 4.97063, 4.25597, 4.93036};
+	int numSeg = 5;	
+	double xcoord[numSeg+1];
+	double ycoord[numSeg+1];
+	double zcoord[numSeg+1];
+
+	
+	cout << FScore(numSeg, rotx, roty, rotz) << endl;
 
 	RotToCartesian(numSeg, rotx, roty, rotz, xcoord, ycoord, zcoord);
 
 	cout << "line = Line [{";
-    for (int i = 0; i < numSeg; i++){
-    	cout << "{" << xcoord[i] << ", " << ycoord[i] << ", "<< zcoord[i] << "}, ";
+   	for (int i = 0; i < numSeg; i++){
+   		cout << "{" << xcoord[i] << ", " << ycoord[i] << ", "<< zcoord[i] << "}, ";
 	}
-	cout << "{" << xcoord[numSeg+1] << ", " << ycoord[numSeg+1] << ", "<< zcoord[numSeg+1] << "}}] ";
+	cout << "{" << xcoord[numSeg+1] << ", " << ycoord[numSeg+1] << ", "<< zcoord[numSeg+1] << "}}] " << endl;
+
+
+
 	return 0;
 }
