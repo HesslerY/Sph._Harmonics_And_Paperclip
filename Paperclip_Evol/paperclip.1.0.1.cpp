@@ -1,3 +1,4 @@
+
 // Written by: Suren Gourapura
 // Date: 10/28/17
 // Goal:     The goal is to evolve paperclip antennas using rotations as the genetics
@@ -101,7 +102,7 @@ double FScore(int numSeg, double rotx[], double roty[], double rotz[]){
     return fScore;
 }
 
-void RotToCartesian(int numSeg, double rotx[], double roty[], double rotz[], double xcoord[], double ycoord[], double zcoord[]){
+double RotToCartesian(int numSeg, double rotx[], double roty[], double rotz[], double xcoord[], double ycoord[], double zcoord[]){
     // First, we need to convert from rotations to unit vector coordinates.
     // Each unit vector corresponds to the direction that line segment is pointing relative to fixed coordinates
     // Initialize the converted array
@@ -137,6 +138,7 @@ void RotToCartesian(int numSeg, double rotx[], double roty[], double rotz[], dou
         ycoord[i+1] = ycoord[i] + unitVecs[i][1];
         zcoord[i+1] = zcoord[i] + unitVecs[i][2];
     }
+    return 0;
 }
 
 
@@ -145,7 +147,7 @@ void RotToCartesian(int numSeg, double rotx[], double roty[], double rotz[], dou
 int main()
 {
     
-    const int numSeg = 12 ;
+    const int numSeg = 10;
     int Gen = 0;
     srand(time(NULL));
     
@@ -256,7 +258,7 @@ int main()
         
         // Evolution Algorithim 2: Take 10 random species, find the one with the best score, and [randomly mutate one of it's rotations to obtain an offspring] 10 times.
         // Do this whole algorithim 3 times
-        for(int a2 = 1; a2 <= 9; a2++){
+        for(int a2 = 1; a2 <= 4; a2++){
             
             int choose10[10]; // Create an array with 10 random values, 0-99. This array determines the 10 random species that will undergo a tournament selection (a.k.a. simply choosing the highest score species out of the 10)
             for (int i = 0; i < 10; i++){
@@ -299,59 +301,63 @@ int main()
         }
         
         
+        
+        // Evolution Algorithim 3: Take 20 random species, run two seperate tournaments to find 2 parents, and [swap a random array location with each other to obtain two offspring (for both combinations)] 5 times.
+        // We do this Algorithm 5 times, for a total of 50 offspring
+        for(int a3 = 1; a3 <= 5; a3++){
+            
+            int choose10A[10], choose10B[10]; // Create 2 arrays with 10 random values, 0-99. These arrays determine the 20 random species that will undergo two seperate tournament selections
+            int Alg3BestValA = 0, Alg3BestValB = 0;
+            
+            while (Alg3BestValA == Alg3BestValB){ // To make sure that the 2 parents aren't the same species, we run the following as long as they are the same
+                for (int i = 0; i < 10; i++){
+                    choose10A[i]= rand() % 100;
+                    choose10B[i]= rand() % 100;
+                }
+                
+                // Since we have pop already organized from best to worst, we simply find the lowest value in choose10 to find the winners of the tournaments. The winning species are called: Algorithim 2 Best Value A/B
+                Alg3BestValA = choose10A[0]; // Assume the best species are the first ones
+                Alg3BestValB = choose10B[0];
+                for (int i = 1; i < 10; i++){
+                    if (Alg3BestValA > choose10A[i]){  // If a lower value is found, make best value that lower value
+                        Alg3BestValA = choose10A[i];
+                    }
+                    if (Alg3BestValB > choose10B[i]){
+                        Alg3BestValB = choose10B[i];
+                    }
+                }
+            }
+            
+            // Now, we swap one part of the species's arrays in both ways to create 2 offspring. We do this 5 times, normalizing after each one
+            int swapLocation[5]; // Create the locations for swapping
+            for (int i = 0; i < 5; i++){
+                swapLocation[i] = rand() %  100;
+            }
+            
+            // We do the process below 5 times, (to spots 50*a3 to 59*a3 in nextPop)
+            for (int i = 0; i < 5; i++){
+                // First, we copy over the two parents in the 10 offspring spots in nextPop, in an A,B,A,B,... pattern
+                for (int j = 0; j < numSeg ; j++){
+                    for (int k = 0; k<3; k++){
+                        nextPop[(i*2) + 10*a3 + 40][j][k]= rankedPop[Alg3BestValA][j][k];    // Copy the Alg3BestVal[A and B] species over. Note: a3 is added to be able to do the whole of Algorithm 3, 5 times
+                        nextPop[(i*2 + 1) + 10*a3 + 40][j][k]= rankedPop[Alg3BestValB][j][k];
+                    }
+                }
+                for (int j = 0; j < numSeg ; j++){
+                    for (int k = 0; k<3; k++){
+                        if(swapLocation[i] == j){  // make sure that the location to be swapped is chosen using swapLocation[]
+                            double temp = nextPop[(i*2) + 10*a3 + 30][j][k];
+                            nextPop[(i*2) + 10*a3 + 40][j][k] = nextPop[(i*2+1) + 10*a3 + 30][j][k];
+                            nextPop[(i*2+1) + 10*a3 + 40][j][k] = temp;
+                        }
+                    }
+                }
+                
+            }
+        }
+        
+        
         /*
-         // Evolution Algorithim 3: Take 20 random species, run two seperate tournaments to find 2 parents, and [swap a random array location with each other to obtain two offspring (for both combinations)] 5 times.
-         // We do this Algorithm 5 times, for a total of 50 offspring
-         for(int a3 = 1; a3 <= 5; a3++){
-         
-         int choose10A[10], choose10B[10]; // Create 2 arrays with 10 random values, 0-99. These arrays determine the 20 random species that will undergo two seperate tournament selections
-         int Alg3BestValA = 0, Alg3BestValB = 0;
-         
-         while (Alg3BestValA == Alg3BestValB){ // To make sure that the 2 parents aren't the same species, we run the following as long as they are the same
-         for (int i = 0; i < 10; i++){
-         choose10A[i]= rand() % 100;
-         choose10B[i]= rand() % 100;
-         }
-         
-         // Since we have pop already organized from best to worst, we simply find the lowest value in choose10 to find the winners of the tournaments. The winning species are called: Algorithim 2 Best Value A/B
-         Alg3BestValA = choose10A[0]; // Assume the best species are the first ones
-         Alg3BestValB = choose10B[0];
-         for (int i = 1; i < 10; i++){
-         if (Alg3BestValA > choose10A[i]){  // If a lower value is found, make best value that lower value
-         Alg3BestValA = choose10A[i];
-         }
-         if (Alg3BestValB > choose10B[i]){
-         Alg3BestValB = choose10B[i];
-         }
-         }
-         }
-         
-         // Now, we swap one part of the species's arrays in both ways to create 2 offspring. We do this 5 times, normalizing after each one
-         int swapLocation[5]; // Create the locations for swapping
-         for (int i = 0; i < 5; i++){
-         swapLocation[i] = rand() % SphHarMAX;
-         }
-         
-         // We do the process below 5 times, (to spots 40*a3 to 49*a3 in nextPop)
-         for (int i = 0; i < 5; i++){
-         // First, we copy over the two parents in the 10 offspring spots in nextPop, in an A,B,A,B,... pattern
-         for (int j = 0; j < SphHarMAX; j++){
-         nextPop[(i*2) + 10*a3 + 30][j]= rankedPop[Alg3BestValA][j];    // Copy the Alg3BestVal[A and B] species over. Note: a3 is added to be able to do the whole of Algorithm 3, 5 times
-         nextPop[(i*2 + 1) + 10*a3 + 30][j]= rankedPop[Alg3BestValB][j];
-         }
-         for (int j = 0; j < SphHarMAX; j++){
-         if(swapLocation[i] == j){  // make sure that the location to be swapped is chosen using swapLocation[]
-         double temp = nextPop[(i*2) + 10*a3 + 30][j];
-         nextPop[(i*2) + 10*a3 + 30][j] = nextPop[(i*2+1) + 10*a3 + 30][j];
-         nextPop[(i*2+1) + 10*a3 + 30][j] = temp;
-         }
-         }
-         
-         }
-         }
-         
-         
-         
          // Evolution Algorithim 4: Introduce 10 random species into the population
          // First step is to give each value in each species random number between -1 and 1. Then, we normalize the species values to 1
          for (int i = 0; i < 10; i++){
