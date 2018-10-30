@@ -16,6 +16,8 @@ def FitnessTest(indivs, fitType):
 		scores = FScore3(indivs)
 
 	# Now, we need to rank the individuals according to the fitness score. 
+	print scores.shape
+	print scores
 	combined = zip(scores, indivs)
 	sortedScores = sorted(combined, reverse=True)
 	rScores, rIndivs = zip(*sortedScores)

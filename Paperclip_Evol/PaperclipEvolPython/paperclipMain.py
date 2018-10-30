@@ -30,9 +30,10 @@ def RotationMain(numSeg, gen, fitType, fitBreakdown, popMax):
 		# First, we want to know how well our generation is doing.
 		# This function orders them from best to worst and gives a 1D array of scores. 
 		rankedScores, rankedPop = paperclipFitnessScores.FitnessTest(pop, fitType)
-		
+		print rankedScores[:5], rankedPop[:5]
+		print ' ', g
 		# Create the new population array to store the results of the algorithms
-		newPop = np.zeros(pop)
+		newPop = np.zeros(pop.shape)
 
 		# We now give the task of creating the new species to the algorithms individually
 		# They will each create the right amount of individuals to sum to popMax
@@ -40,14 +41,15 @@ def RotationMain(numSeg, gen, fitType, fitBreakdown, popMax):
 		newPopA2 = paperclipGenAlgorithms.Alg2(rankedScores, rankedPop, fitBreakdown[1])
 		newPopA3 = paperclipGenAlgorithms.Alg3(rankedScores, rankedPop, fitBreakdown[2])
 		newPopA4 = paperclipGenAlgorithms.Alg4(rankedScores, rankedPop, fitBreakdown[3])
-		
-		newPop = np.vstack(newPopA1, newPopA2, newPopA3, newPopA4)
-		
+
+		newPop = np.vstack((newPopA1, newPopA2, newPopA3, newPopA4))
+		pop = newPop
 	return
 
 
-breakdown = np.array([10, 30, 50, 10])
-RotationMain(numSeg=5, gen=1, fitType=1, fitBreakdown = breakdown, popMax=5)
+#breakdown = np.array([10, 30, 50, 10])
+breakdown = np.array([10, 0, 10, 0])
+RotationMain(numSeg=5, gen=5, fitType=1, fitBreakdown = breakdown, popMax=np.sum(breakdown))
 
 
 
