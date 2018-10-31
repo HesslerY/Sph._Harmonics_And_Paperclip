@@ -16,10 +16,9 @@ def FitnessTest(indivs, fitType):
 		scores = FScore3(indivs)
 
 	# Now, we need to rank the individuals according to the fitness score. 
-	print scores.shape
-	print scores
 	combined = zip(scores, indivs)
-	sortedScores = sorted(combined, reverse=True)
+	sortedScores = sorted(combined, key=lambda t:t[0], reverse=True)
+	#sortedScores = combined.sort(key=lambda t:t[0] ,reverse=True)
 	rScores, rIndivs = zip(*sortedScores)
 
 	return np.asarray(rScores), np.asarray(rIndivs)

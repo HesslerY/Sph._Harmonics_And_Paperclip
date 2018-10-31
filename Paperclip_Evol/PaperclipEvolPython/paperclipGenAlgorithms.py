@@ -2,8 +2,8 @@
 
 import numpy as np
 
-def Tournament(rPop, numCompetitors):
-	# Gives 1 winner out of a tournament of [numCompetitors] number of competitors
+def Tournament(rPop, numCompetitors, seed):
+	# Gives (the index of) 1 winner out of a tournament of [numCompetitors] number of competitors
 	# Create an array with all indicies in rPop: [0,1,2,..., popMax]
 	totalPopInd = np.arange(rPop.shape[0])
 	# Shuffle it randomly
@@ -11,7 +11,7 @@ def Tournament(rPop, numCompetitors):
 	# Choose the first numCompetitors
 	tournCompetitors = totalPopInd[:numCompetitors]
 	# The competitor with the best fitness score is the competitor with the lowest number, since the population is ordered
-	return rPop[np.amin(tournCompetitors)]
+	return np.amin(tournCompetitors)
 
 
 
@@ -34,7 +34,7 @@ def Alg2(rScores, rPop, numOffspring):
 	
 	for i in range(numOffspring/10):
 		# We need to perform a tournament selection first to get 1 winner out of 10
-		parent = Tournament(rPop, 10)
+		parent = Tournament(rPop, 10, i)
 	
 		for j in range(10):
 			# We need a location for mutation (node and x,y,or z) and a mutation value
@@ -59,8 +59,8 @@ def Alg3(rScores, rPop, numOffspring):
 	offspring = np.zeros((numOffspring, rPop.shape[1], rPop.shape[2]))
 	
 	for i in range(int(numOffspring/10.0)):
-		# We need to perform a tournament selection first to get 1 winner out of 10
-		parent = Tournament(rPop, 10)
+		# We need to perform a tournament selection first, to get 1 winner out of 10
+		parent = rPop[Tournament(rPop, 10, i)]
 
 		for j in range(10):
 			# We need a location for mutation (node and x,y,or z)
@@ -81,8 +81,32 @@ def Alg3(rScores, rPop, numOffspring):
 def Alg4(rScores, rPop, numOffspring):
 	"""
 	We take two sets of 10 random species, find the best score in each, and randomly crossover one of its rotations five seperate times to obtain 10 offspring. Each switch between parents A and B creates two offspringone made of mostly A and one made with mostly B. This whole This whole process is done (numOffspring/10) times. 
-	"""		
-	return rPop[:numOffspring]
+	"""
+	offspring = np.zeros((numOffspring, rPop.shape[1], rPop.shape[2]))
+	
+	for i in range(int(numOffspring/10.0)):
+		# We need to perform two tournament selections first. Gets 2 parents that aren't the same
+		parentAind = Tournament(rPop, 10, i)
+		parentBind = Tournament(rPop, 10, i)
+		while parentAind == parentBind:
+			print 'repeated parent', i
+			parentBind = Tournament(rPop, 10, i)
+		parentA = rPop[parentAind]
+		parentB = rPop[parentBind]
+		for j in range(5):
+			# We need a location for crossover (node and x,y,or z)
+			whichNode = np.random.randint(rPop.shape[1])
+			whichRot = np.random.randint(3)
+			# This process creates two offspring. First, copy the parents over
+			offspring[i*10+j*2] = parentA
+			offspring[i*10+j*2+1] = parentB
+			# Now, switch the specific rotation in each offspring
+			offspring[i*10+j*2, whichNode, whichRot] = parentB[whichNode, whichRot]
+			offspring[i*10+j*2+1, whichNode, whichRot] = parentA[whichNode, whichRot]
+	return offspring
+
+
+
 
 
 

@@ -30,8 +30,11 @@ def RotationMain(numSeg, gen, fitType, fitBreakdown, popMax):
 		# First, we want to know how well our generation is doing.
 		# This function orders them from best to worst and gives a 1D array of scores. 
 		rankedScores, rankedPop = paperclipFitnessScores.FitnessTest(pop, fitType)
-		print rankedScores[:5], rankedPop[:5]
-		print ' ', g
+		if g % 10==0:
+			print ' ', g
+			print rankedScores[:5]
+			#print rankedPop
+
 		# Create the new population array to store the results of the algorithms
 		newPop = np.zeros(pop.shape)
 
@@ -43,19 +46,49 @@ def RotationMain(numSeg, gen, fitType, fitBreakdown, popMax):
 		newPopA4 = paperclipGenAlgorithms.Alg4(rankedScores, rankedPop, fitBreakdown[3])
 
 		newPop = np.vstack((newPopA1, newPopA2, newPopA3, newPopA4))
+
+		"""
+		 We finally do the last algorithm.If two antenna have the same values (down to ~epsilon), and they have the same fitness score, replace one of them with a random antenna
+		"""
+		print "gen", g
+		print "before", rankedScores
+		for i in range(popMax-1):
+			if np.abs(rankedScores[i]-rankedScores[i+1])<=0.00001:
+				print "here",i
+				newPop[i+1] == np.random.random_sample()*np.pi*2.0
+		print ' '
+		#print "after",rankedScores
+
 		pop = newPop
 	return
 
-
 #breakdown = np.array([10, 30, 50, 10])
-breakdown = np.array([10, 0, 10, 0])
-RotationMain(numSeg=5, gen=5, fitType=1, fitBreakdown = breakdown, popMax=np.sum(breakdown))
-
-
-
-
-
-
-
-
+breakdown = np.array([10, 10, 10, 20])
+RotationMain(numSeg=5, gen=10, fitType=1, fitBreakdown = breakdown, popMax=np.sum(breakdown))
+"""
+rPop = np.arange(15).reshape((5,3))
+print rPop
+# We need a location for crossover (node and x,y,or z)
+whichNode = np.random.randint(rPop.shape[0])
+whichRot = np.random.randint(3)
+print whichNode, whichRot
+parentA=np.arange(15).reshape((5,3))
+parentB=parentA-5
+print parentA, parentB
+# This process creates two offspring. First, copy the parents over
+offspring1 = parentA
+offspring2 = parentB
+# Now, switch the specific rotation in each offspring
+offspring1[ whichNode, whichRot] = parentB[whichNode, whichRot]
+offspring2[ whichNode, whichRot] = parentA[whichNode, whichRot]
+print offspring1, offspring2
+print ' '
+whichNode = np.random.randint(rPop.shape[0])
+whichRot = np.random.randint(3)
+print whichNode, whichRot
+offspring1[ whichNode, whichRot] = parentB[whichNode, whichRot]
+offspring2[ whichNode, whichRot] = parentA[whichNode, whichRot]
+print offspring1, offspring2
+print ' '
+"""
 
