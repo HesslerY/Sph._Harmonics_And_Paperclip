@@ -2,7 +2,7 @@
 
 import numpy as np
 
-def Tournament(rPop, numCompetitors, seed):
+def Tournament(rPop, numCompetitors):
 	# Gives (the index of) 1 winner out of a tournament of [numCompetitors] number of competitors
 	# Create an array with all indicies in rPop: [0,1,2,..., popMax]
 	totalPopInd = np.arange(rPop.shape[0])
@@ -34,7 +34,7 @@ def Alg2(rScores, rPop, numOffspring):
 	
 	for i in range(numOffspring/10):
 		# We need to perform a tournament selection first to get 1 winner out of 10
-		parent = Tournament(rPop, 10, i)
+		parent = rPop[Tournament(rPop, 10)]
 	
 		for j in range(10):
 			# We need a location for mutation (node and x,y,or z) and a mutation value
@@ -60,7 +60,7 @@ def Alg3(rScores, rPop, numOffspring):
 	
 	for i in range(int(numOffspring/10.0)):
 		# We need to perform a tournament selection first, to get 1 winner out of 10
-		parent = rPop[Tournament(rPop, 10, i)]
+		parent = rPop[Tournament(rPop, 10)]
 
 		for j in range(10):
 			# We need a location for mutation (node and x,y,or z)
@@ -86,11 +86,11 @@ def Alg4(rScores, rPop, numOffspring):
 	
 	for i in range(int(numOffspring/10.0)):
 		# We need to perform two tournament selections first. Gets 2 parents that aren't the same
-		parentAind = Tournament(rPop, 10, i)
-		parentBind = Tournament(rPop, 10, i)
+		parentAind = Tournament(rPop, 10)
+		parentBind = Tournament(rPop, 10)
 		while parentAind == parentBind:
 			print 'repeated parent', i
-			parentBind = Tournament(rPop, 10, i)
+			parentBind = Tournament(rPop, 10)
 		parentA = rPop[parentAind]
 		parentB = rPop[parentBind]
 		for j in range(5):

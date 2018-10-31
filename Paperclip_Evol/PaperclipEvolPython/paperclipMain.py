@@ -30,13 +30,8 @@ def RotationMain(numSeg, gen, fitType, fitBreakdown, popMax):
 		# First, we want to know how well our generation is doing.
 		# This function orders them from best to worst and gives a 1D array of scores. 
 		rankedScores, rankedPop = paperclipFitnessScores.FitnessTest(pop, fitType)
-		if g % 10==0:
-			print ' ', g
-			print rankedScores[:5]
-			#print rankedPop
 
 		# Create the new population array to store the results of the algorithms
-		newPop = np.zeros(pop.shape)
 
 		# We now give the task of creating the new species to the algorithms individually
 		# They will each create the right amount of individuals to sum to popMax
@@ -48,23 +43,41 @@ def RotationMain(numSeg, gen, fitType, fitBreakdown, popMax):
 		newPop = np.vstack((newPopA1, newPopA2, newPopA3, newPopA4))
 
 		"""
-		 We finally do the last algorithm.If two antenna have the same values (down to ~epsilon), and they have the same fitness score, replace one of them with a random antenna
+		 We finally do the last algorithm.If two antenna have the same fitness score, replace one of them with a random antenna
 		"""
-		print "gen", g
-		print "before", rankedScores
+		rankedNewScores, rankedNewPop = paperclipFitnessScores.FitnessTest(newPop, fitType)
+		#print "gen", g
+		#print rankedNewScores
 		for i in range(popMax-1):
-			if np.abs(rankedScores[i]-rankedScores[i+1])<=0.00001:
-				print "here",i
-				newPop[i+1] == np.random.random_sample()*np.pi*2.0
-		print ' '
+			if np.abs(rankedNewScores[i]-rankedNewScores[i+1])<=0.00001:
+				#print "here",i
+				#print "Before", rankedNewScores[i+1]#, newPop[i+1]
+				rankedNewPop[i+1] = np.random.random_sample((numSeg, 3))*np.pi*2.0		
+				#print 'new score', paperclipFitnessScores.FScore1(np.array([rankedNewPop[i+1]]) )
+				#print ' '
+				#print "now", newPop[i+1]
+
+		#print ' '
+		rScores,newPop = paperclipFitnessScores.FitnessTest(rankedNewPop, fitType)
+		#print "After", rScores
 		#print "after",rankedScores
+		
+		if g % 100==0:
+			print ' ', g
+			print "best one",rScores[0], newPop[0]
+			
+			#print rankedPop
 
 		pop = newPop
 	return
 
 #breakdown = np.array([10, 30, 50, 10])
-breakdown = np.array([10, 10, 10, 20])
-RotationMain(numSeg=5, gen=10, fitType=1, fitBreakdown = breakdown, popMax=np.sum(breakdown))
+breakdown = [10, 30, 30, 30]
+RotationMain(numSeg=10, gen=1000, fitType=1, fitBreakdown = breakdown, popMax=np.sum(breakdown))
+
+
+
+
 """
 rPop = np.arange(15).reshape((5,3))
 print rPop
