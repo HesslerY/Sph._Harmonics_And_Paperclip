@@ -89,7 +89,7 @@ def Alg4(rScores, rPop, numOffspring):
 		parentAind = Tournament(rPop, 10)
 		parentBind = Tournament(rPop, 10)
 		while parentAind == parentBind:
-			print 'repeated parent', i
+			#print 'repeated parent', i
 			parentBind = Tournament(rPop, 10)
 		parentA = rPop[parentAind]
 		parentB = rPop[parentBind]

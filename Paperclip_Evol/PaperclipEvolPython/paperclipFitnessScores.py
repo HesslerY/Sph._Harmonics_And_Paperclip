@@ -3,6 +3,19 @@
 import numpy as np
 
 
+def Sort(scores, indivs):
+	# This function sorts both the scores and individuals from greatest score to least score
+	# Check first to make sure the arrays have the same length
+	if scores.shape[0]!=indivs.shape[0]:
+		print "Error, sorting sizes are not the same."
+		return
+	
+	combined = zip(scores, indivs)
+	sortedScores = sorted(combined, key=lambda t:t[0], reverse=True)
+	#sortedScores = combined.sort(key=lambda t:t[0] ,reverse=True)
+	rScores, rIndivs = zip(*sortedScores)
+	return np.asarray(rScores), np.asarray(rIndivs)
+
 
 
 def FitnessTest(indivs, fitType):
@@ -14,14 +27,9 @@ def FitnessTest(indivs, fitType):
 		scores = FScore2(indivs)
 	if fitType == 3:
 		scores = FScore3(indivs)
-
-	# Now, we need to rank the individuals according to the fitness score. 
-	combined = zip(scores, indivs)
-	sortedScores = sorted(combined, key=lambda t:t[0], reverse=True)
-	#sortedScores = combined.sort(key=lambda t:t[0] ,reverse=True)
-	rScores, rIndivs = zip(*sortedScores)
-
-	return np.asarray(rScores), np.asarray(rIndivs)
+	# Now sort these by greatest to least score
+	rScores, rIndivs = Sort(scores, indivs)
+	return rScores, rIndivs
 
 
 
@@ -50,6 +58,22 @@ def vecTransform(rotMatrixIndiv):
 
 	return vecMatrixIndiv
 
+
+
+def cartTransform(rotMatrixIndiv):
+	# Takes a single individual that is in rotational notation and converts them to cartesian notation.
+
+	# First, convert it to vector notation.
+	vecMatrixIndiv = vecTransform(rotMatrixIndiv)
+	"""
+	These vectors are all relative to the one before. To convert these to cartesian, each segment's vector needs to be summed with all previous segment's vectors. Note that the coordMatrix is one element longer, due to numSeg+1 number of verticies. The first element (referrring to coordMatrixIndiv[0]) is always [0,0,0]
+	"""
+	cartMatrixIndiv = np.zeros((vecMatrixIndiv.shape[0]+1,vecMatrixIndiv.shape[1]))
+
+	for i in range(cartMatrixIndiv.shape[0]): # <- this should have the value of numSeg
+		cartMatrixIndiv[i]=np.sum(vecMatrixIndiv[0:i], axis=0) # Adding the previous i segments
+
+	return cartMatrixIndiv
 
 
 
