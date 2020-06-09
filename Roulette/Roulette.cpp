@@ -16,7 +16,5 @@
 
 using namespace std;
 
-<<<<<<< HEAD
-=======
 // This is ryans comments
 >>>>>>> 4d383462153db23f64e4d8f6dde6e516bb9285ef
