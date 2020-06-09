@@ -17,4 +17,7 @@
 
 using namespace std;
 
-// This is ryans comments
+// Headers
+
+void dataRead(vector<vector<vector<float>>> &varInput, vecotr<float> &fitness);
+
