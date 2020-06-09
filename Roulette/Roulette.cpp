@@ -21,3 +21,8 @@ using namespace std;
 
 void dataRead(vector<vector<vector<float>>> &varInput, vecotr<float> &fitness);
 
+void dataWrite(int numChildren, vector<vector<vector<float>>> &varVector, int freq_coeffs, vector<double> freqVector);
+
+void checkConvergence(vector<vector<vector<float>>> &varInput, vector<float> &fitness);
+
+void roulette(vector<vector<vector<float>>> &varInput, vector<vector<vector<float>>> &varOutput, vecotr<float> &fitness);
