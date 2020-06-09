@@ -10,16 +10,13 @@
 #include <random>
 #include <iostream>
 #include <fstream>
-#include <sstream>
-#include <vector>
+#include <sstream>#include <vector>
 #include <chrono>
 #include <thread>
 
 using namespace std;
 
-
-
-
-
-
-// This is a beautiful comment!
+<<<<<<< HEAD
+=======
+// This is ryans comments
+>>>>>>> 4d383462153db23f64e4d8f6dde6e516bb9285ef
