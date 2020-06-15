@@ -142,6 +142,7 @@ double RotToCartesian(int numSeg, double rotx[], double roty[], double rotz[], d
 }
 
 
+void roulette(double fitness[]);
 
 
 int main()
@@ -149,7 +150,7 @@ int main()
     
     const int numSeg = 10;
     int Gen = 0;
-    srand(time(NULL));
+    srand(1);
     
     // Enter the number of antenna segments
     cout << "Enter the number of generations:" << endl;
@@ -482,5 +483,26 @@ int main()
         }
         cout << "{" << xcoord[numSeg] << ", " << ycoord[numSeg] << ", "<< zcoord[numSeg] << "}}] " << endl;
     }
+
+    roulette(finalScores);
+  
+    cout<< "finals scores check"<< endl;
+    cout << "individuals: "<< sizeof(finalScores)<< endl;
+    for (int i=0; i<= sizeof(finalScores); i++)
+      {
+	cout<< finalScores[i]<< endl;
+      }
+  
     return 0;
+}
+
+
+void roulette(double fitness[])
+{
+  cout << "fitness scores: "<< endl;
+  cout << "Individuals:" << sizeof(fitness) << endl;
+  for (int i=0; i<= sizeof(fitness); i++)
+    {
+      cout << fitness[i] << endl;
+    }
 }
