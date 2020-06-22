@@ -142,7 +142,7 @@ double RotToCartesian(int numSeg, double rotx[], double roty[], double rotz[], d
 }
 
 
-void roulette(double fitness[]);
+void roulette(double &fitness[]);
 
 
 int main()
@@ -497,7 +497,7 @@ int main()
 }
 
 
-void roulette(double fitness[])
+void roulette(double & fitness[])
 {
   cout << "fitness scores: "<< endl;
   cout << "Individuals:" << sizeof(fitness) << endl;
