@@ -23,7 +23,7 @@ void dataRead(vector<vector<vector<float>>> &varInput, vector<float> &fitness);
 
 void dataWrite(int numChildren, vector<vector<vector<float>>> &varVector, int freq_coeffs, vector<double> freqVector);
 
-void checkConvergence(vector<vector<vector<float>>> &varInput, vector<float> &fitness);
+int checkConvergence(vector<vector<vector<float>>> &varInput, vector<float> &fitness);
 
 void roulette(vector<vector<vector<float>>> &varInput, vector<vector<vector<float>>> &varOutput, vector<float> &fitness);
 
@@ -40,7 +40,7 @@ double Freq_Step = 0.01667;
 
 const int NSections = 1;
 const int NVars = 3;
-const int Partent_NO = 2;
+const int parent_NO = 2;
 const int DNA_Garbage_End = 9;
 
 //
@@ -48,7 +48,7 @@ const int DNA_Garbage_End = 9;
 
 int NPop;
 const float Mutability =0.6f;
-
+const float Tourney_Proportion = 0.0f;
 //
 // Statistic constants
 
@@ -239,7 +239,7 @@ void dataWrite(int numChildren, vector<vector<vector<float>>> &varVector, int fr
 {
   ofstream generationDNA;
   generationDNA.open("generationDNA.csv");
-  generationDNA << "this is just a test";
+  generationDNA << "this is just a test \n";
 
   for(int i=0; i<freq_coeffs; i++)
     {
@@ -279,11 +279,11 @@ void dataRead(vector<vector<vector<float>>> &varInput, vector<float> &fitness)
 {
   ifstream generationDNA;
   generationDNA.open("generationDNA.csv");
-  int csv_file_size = DNA_Garbage_End + (NPop * Nsections);
+  int csv_file_size = DNA_Garbage_End + (NPop * NSections);
   string csvContent[csv_file_size+1];
   string strToDbl;
 
-  for(int i=1; i<=csv_file_size; i++);
+  for(int i=1; i<=csv_file_size; i++)
   {
     getline(generationDNA,csvContent[i]);
     if (i>DNA_Garbage_End)
@@ -294,7 +294,7 @@ void dataRead(vector<vector<vector<float>>> &varInput, vector<float> &fitness)
 	for(int k=0;k<NVars;k++)
 	  {
 	    getline(stream, strToDbl, ',');
-	    varInput[j-1][p][k] = atof(strtoDbl.c_str());
+	    varInput[j-1][p][k] = atof(strToDbl.c_str());
 	  }
       }
   }
@@ -324,7 +324,7 @@ int checkConvergence(vector<vector<vector<float>>> &varInput, vector<float> &fit
   vector<vector<float>> meanTensor (NSections, vector<float>(NVars, 0));
   vector<vector<float>> dvnTensor (NSections, vector<float>(NVars,0));
 
-  for(int i=0; i<Nvars; i++)
+  for(int i=0; i<NVars; i++)
     {
       for(int j=0; j<NSections; j++)
 	{
@@ -342,7 +342,7 @@ int checkConvergence(vector<vector<vector<float>>> &varInput, vector<float> &fit
     {
       for(int j=0; j<NSections; j++)
 	{
-	  float dvnDum = 0.0f;
+	  float dvnSum = 0.0f;
 	  for (int k=0; k<NPop;k++)
 	    {
 	      dvnSum+=pow((varInput[k][j][i] - meanTensor[j][i]),2);
@@ -384,7 +384,7 @@ void roulette(vector<vector<vector<float>>> &varInput, vector<vector<vector<floa
 	}
     }
 
-  vector<vector<int>> selected (roulette_no, vector<int>(Parent_no ,0));
+  vector<vector<int>> selected (roulette_no, vector<int>(parent_NO ,0));
   
   for(int i=0; i<NPop; i++)
     {
@@ -393,10 +393,10 @@ void roulette(vector<vector<vector<float>>> &varInput, vector<vector<vector<floa
   
   for(int i=0; i<roulette_no;i++)
     {
-      for(int j=0; j<Parent_no; j++)
+      for(int j=0; j<parent_NO; j++)
 	{
 	  float partial_sum =0.0f;
-	  floar r =rand()%100;
+	  float r =rand()%100;
 	  
 	  for(int k=0; k<NPop; k++)
 	    {
@@ -419,7 +419,7 @@ void roulette(vector<vector<vector<float>>> &varInput, vector<vector<vector<floa
 	{
 	  for(int k=0; k<NVars;k++)
 	    {
-	      int pick1=rand()%Parent_no;
+	      int pick1=rand()%parent_NO;
 	      varOutput[i][j][k] = varInput[selected[i][pick1]][j][k];
 	    }
 	}
@@ -467,15 +467,15 @@ void roulette(vector<vector<vector<float>>> &varInput, vector<vector<vector<floa
 
       while(mutate_flag[r] == true)
 	{
-	  r = rand()%roulete_no;
+	  r = rand()%roulette_no;
 	}
       for (int j=0; j<NSections; j++)
 	{
-	  int numberOfMutations = rand()%Nvars +1;
+	  int numberOfMutations = rand()%NVars +1;
 
 	  for(int k=0; k<numberOfMutations; k++)
 	    {
-	      int chromosomeMutation = rand%NSections;
+	      int chromosomeMutation = rand()%NSections;
 	      int geneMutation = rand()%NVars;
 	      std::default_random_engine generator;
 	      generator.seed(time(0));
