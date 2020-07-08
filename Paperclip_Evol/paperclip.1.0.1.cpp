@@ -10,6 +10,10 @@
 #include <iomanip>
 #include <ctime>
 #include <stdlib.h>
+#include <stdio.h>
+#include <time.h>
+#include <random>
+#include <vector>
 using namespace std;
 
 double Pi = 3.14159265359;
@@ -141,13 +145,15 @@ double RotToCartesian(int numSeg, double rotx[], double roty[], double rotz[], d
     return 0;
 }
 
+// Ryan's Roulette test functions
+vector<int> roulette(double fitness[], int Pop);
 
-void roulette(double &fitness[]);
-
+vector<vector<vector<double> > > crossover(vector<vector<vector<double> > > & cross);
+//
 
 int main()
 {
-    
+
     const int numSeg = 10;
     int Gen = 0;
     srand(1);
@@ -156,6 +162,11 @@ int main()
     cout << "Enter the number of generations:" << endl;
     // cin >> numSeg;
     cin >> Gen;
+
+    //Roulette on or off switch
+    int Roul;
+    cout << "Would you like to use Roulette? (1 = yes)  " ;
+    cin >> Roul;
     
     
     // Create the population with user specified number of line segments
@@ -193,7 +204,9 @@ int main()
         // The following matrix will hold the next generation's species. In the end of the evolution, we will make pop = nextPop, so the next evolution afterwards will act on nextPop
         double nextPop[PopMAX][numSeg][3] = {};
         
-        
+
+	if(Roul != 1)
+	  {
         
         // Evolution Algorithim 1: Take the 10 species with the best scores and pass them onto nextPop
         
@@ -255,8 +268,8 @@ int main()
             cout << ", Y-Rot = " << rankedPop[99][j][1];
             cout << ", Z-Rot = "<< rankedPop[99][j][2] << endl;
         }
-        
-        
+	  
+  
         // Evolution Algorithim 2: Take 10 random species, find the one with the best score, and [randomly mutate one of it's rotations to obtain an offspring] 10 times.
         // Do this whole algorithim 3 times
         for(int a2 = 1; a2 <= 4; a2++){
@@ -356,7 +369,79 @@ int main()
                 
             }
         }
-        
+      
+	  }
+
+	// roulette call //
+
+	if(Roul ==1)
+	  {
+
+	cout << endl << endl << endl;
+        vector<int> chosen;
+	cout << "preparing to initialize roulette" << endl;
+	chosen = roulette(testScores, PopMAX);
+	for (int v=0; v<10; v++)
+	  {
+	    cout << "Individual "<< chosen[v] << " has been selected with fitness score: " << testScores[chosen[v]] << endl;
+	  }
+
+	for (int i=0; i<10; i++)
+	  {
+	    for (int j=0; j<numSeg; j++)
+	      {
+		for (int k = 0; k<3; k++)
+		  {
+		    nextPop[i][j][k]= pop[chosen[i]][j][k];
+		  }
+	      }
+	  }
+
+	cout << "Roulette " << g << " Chosen:" << endl << endl;
+	for( int i = 0; i<10; i++)
+	  {
+	    cout << "# " << i+1 << " With score " << testScores[chosen[i]] << endl;
+	    for (int j = 0; j< numSeg; j++)
+	      {
+		cout <<"Node " << j << " : X-Rot = " << nextPop[i][j][0];
+		cout <<", Y-Rot = " << nextPop[i][j][1];
+		cout <<", Z-Rot = " << nextPop[i][j][2]<< endl;
+	      }
+	    cout <<endl;
+	  }
+	cout << endl << "Roulette Finialized"<< endl;
+
+	// Crossover call for parents
+
+
+	vector<vector<vector<double> > > cross;
+
+	for(int i=0; i < PopMAX; i++)
+	  {
+	    for(int j=0; j < numSeg; j++)
+	      {
+		for(int k=0; k< 3; k++)
+		  {
+		    cross.push_back(vector<vector<double> >());
+		    cross[i].push_back(vector<double>());
+		    cross[i][j].push_back(nextPop[i][j][k]);
+					  
+		    cout << cross[i][j][k] << " =? " << nextPop[i][j][k] << endl;
+		  }
+	      }
+	  }
+
+
+	cross = crossover(cross);
+
+	cout << endl << endl << endl;
+	  }
+
+
+
+
+
+
         
         /*
          // Evolution Algorithim 4: Introduce 10 random species into the population
@@ -390,7 +475,7 @@ int main()
         
     }    // End of Evolution
     
-    
+
     
     // The work is done, now time to see the results of the final generation! We follow the same ranking protocol
     double finalScores[100];
@@ -484,25 +569,93 @@ int main()
         cout << "{" << xcoord[numSeg] << ", " << ycoord[numSeg] << ", "<< zcoord[numSeg] << "}}] " << endl;
     }
 
-    roulette(finalScores);
   
-    cout<< "finals scores check"<< endl;
-    cout << "individuals: "<< sizeof(finalScores)<< endl;
-    for (int i=0; i<= sizeof(finalScores); i++)
-      {
-	cout<< finalScores[i]<< endl;
-      }
   
     return 0;
 }
 
 
-void roulette(double & fitness[])
+vector<int> roulette(double fitness[], int Pop)
 {
-  cout << "fitness scores: "<< endl;
-  cout << "Individuals:" << sizeof(fitness) << endl;
-  for (int i=0; i<= sizeof(fitness); i++)
+  cout << "Roulette Initialized: " << endl;
+  
+  double Total =0.0;
+  vector<double> Adjusted_Fit;
+  vector<double> Probability;
+  for (int i=0; i < Pop; i++)
     {
-      cout << fitness[i] << endl;
+      if (fitness[i] > 0.0)
+	{
+	  Adjusted_Fit.push_back(fitness[i]);
+	}
     }
+
+  for(int r=0; r<Adjusted_Fit.size(); r++)
+    {
+      Total = Total + Adjusted_Fit[r];
+    }
+
+
+
+
+  cout << "Total Fitness Sum is: "<< Total << endl;
+  for (int j=0; j < Adjusted_Fit.size(); j++)
+    {
+      Probability.push_back(Adjusted_Fit[j]/Total);
+    }
+
+
+  // generate random number between zero and one//
+  double ticker[10];
+  vector<int> chosen;
+  vector<int> check;
+  default_random_engine generator (time(NULL));
+  uniform_real_distribution<double> choice(0.0, 1.0);
+  
+  for(int k =0; k<10; k++)
+    {
+      ticker[k] = choice(generator);
+      double under = 0.0;
+      double over = 0.0;
+      for (int x = 0; x <Probability.size(); x++)
+	{
+	  under = under + Probability[x];
+	  if(x < Probability.size()-1)
+	    {
+	      over = under + Probability[x+1];
+	    }
+	  else
+	    {
+	      over = under;
+	    }
+	  if(ticker[k] >= under && ticker[k] <= over || ticker[k] == under)
+	    {
+	      check.push_back(x);
+	      x = Probability.size();
+	    }
+	  else if ( x == Probability.size()-1)
+	    {
+	      check.push_back(x);
+	      x = Probability.size();
+	    }
+	}
+    }
+
+  for(int a=0; a<Pop; a++)
+    {
+      for(int c=0; c < check.size(); c++)
+	{
+	  if(Adjusted_Fit[check[c]] == fitness[a])
+	    {
+	      chosen.push_back(a);
+	    }
+	}
+    }
+  return (chosen);
+}
+
+
+vector<vector<vector<double> > > crossover(vector<vector<vector<double> > > & cross)
+{
+  return(cross);
 }
