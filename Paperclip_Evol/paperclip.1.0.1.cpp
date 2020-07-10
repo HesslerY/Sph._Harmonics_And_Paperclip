@@ -425,8 +425,6 @@ int main()
 		    cross.push_back(vector<vector<double> >());
 		    cross[i].push_back(vector<double>());
 		    cross[i][j].push_back(nextPop[i][j][k]);
-					  
-		    cout << cross[i][j][k] << " =? " << nextPop[i][j][k] << endl;
 		  }
 	      }
 	  }
@@ -434,6 +432,16 @@ int main()
 
 	cross = crossover(cross);
 
+	for(int i=0; i<PopMAX; i++)
+	  {
+	    for(int j = 0; j< numSeg; j++)
+	      {
+		for(int k =0; k<3; k++)
+		  {
+		    nextPop[i][j][k] = cross[i][j][k];
+		  }
+	      }
+	  }
 	cout << endl << endl << endl;
 	  }
 
@@ -592,6 +600,7 @@ vector<int> roulette(double fitness[], int Pop)
 
   for(int r=0; r<Adjusted_Fit.size(); r++)
     {
+      cout << Adjusted_Fit[r] << endl;
       Total = Total + Adjusted_Fit[r];
     }
 
@@ -657,5 +666,45 @@ vector<int> roulette(double fitness[], int Pop)
 
 vector<vector<vector<double> > > crossover(vector<vector<vector<double> > > & cross)
 {
+  cout << "Crossover Initialized" << endl;
+
+  double ticker[10];
+  default_random_engine generator(time(NULL));
+  uniform_real_distribution<double> choice(0.0,1.0);
+
+  for(int i=10; i<100; i++) // individual being created
+    {
+      for(int j=0; j<10; j++) // parent 1
+	{
+	  for(int k=0; k<10; k++) //parent 2
+	    {
+	      for(int x=0; x<10; x++) // segment (chomosome)
+		{
+		  if( j == k)
+		    {
+		      k=k+1;
+		    }
+		  else
+		    {
+		      for( int y=0; y<3; y++)
+			{
+			  ticker[y] = choice(generator);
+			  if(ticker[y] < .5 )
+			    {
+			  
+			  cross[i][x][y] = cross[j][x][y];
+			    }
+			  else
+			    {
+			  
+			      cross[i][x][y] = cross[k][x][y];
+			    }
+			}
+		    }
+		}
+	    }
+	}
+    }		  
+  cout << "Crossover Finalized" << endl;
   return(cross);
 }
