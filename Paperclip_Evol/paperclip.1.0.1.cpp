@@ -149,6 +149,8 @@ double RotToCartesian(int numSeg, double rotx[], double roty[], double rotz[], d
 vector<int> roulette(double fitness[], int Pop);
 
 vector<vector<vector<double> > > crossover(vector<vector<vector<double> > > & cross);
+
+vector<vector<vector<double> > > simple_mutation(vector<vector<vector<double> > > & mutation);
 //
 
 int main()
@@ -432,6 +434,10 @@ int main()
 
 	cross = crossover(cross);
 
+	// Simple mutation run
+	cross = simple_mutation(cross);
+
+	// send to next pop
 	for(int i=0; i<PopMAX; i++)
 	  {
 	    for(int j = 0; j< numSeg; j++)
@@ -442,6 +448,7 @@ int main()
 		  }
 	      }
 	  }
+
 	cout << endl << endl << endl;
 	  }
 
@@ -615,15 +622,15 @@ vector<int> roulette(double fitness[], int Pop)
 
 
   // generate random number between zero and one//
-  double ticker[10];
+  double ticker;
   vector<int> chosen;
   vector<int> check;
-  default_random_engine generator (time(NULL));
+  default_random_engine generator (1);
   uniform_real_distribution<double> choice(0.0, 1.0);
   
   for(int k =0; k<10; k++)
     {
-      ticker[k] = choice(generator);
+      ticker = choice(generator);
       double under = 0.0;
       double over = 0.0;
       for (int x = 0; x <Probability.size(); x++)
@@ -637,7 +644,7 @@ vector<int> roulette(double fitness[], int Pop)
 	    {
 	      over = under;
 	    }
-	  if(ticker[k] >= under && ticker[k] <= over || ticker[k] == under)
+	  if(ticker >= under && ticker <= over || ticker == under)
 	    {
 	      check.push_back(x);
 	      x = Probability.size();
@@ -668,8 +675,8 @@ vector<vector<vector<double> > > crossover(vector<vector<vector<double> > > & cr
 {
   cout << "Crossover Initialized" << endl;
 
-  double ticker[10];
-  default_random_engine generator(time(NULL));
+  double ticker;
+  default_random_engine generator(1);
   uniform_real_distribution<double> choice(0.0,1.0);
 
   for(int i=10; i<100; i++) // individual being created
@@ -688,8 +695,8 @@ vector<vector<vector<double> > > crossover(vector<vector<vector<double> > > & cr
 		    {
 		      for( int y=0; y<3; y++)
 			{
-			  ticker[y] = choice(generator);
-			  if(ticker[y] < .5 )
+			  ticker = choice(generator);
+			  if(ticker < .5 )
 			    {
 			  
 			  cross[i][x][y] = cross[j][x][y];
@@ -708,3 +715,34 @@ vector<vector<vector<double> > > crossover(vector<vector<vector<double> > > & cr
   cout << "Crossover Finalized" << endl;
   return(cross);
 }
+
+vector<vector<vector<double> > > simple_mutation(vector<vector<vector<double> > > & mutation)
+{
+  cout <<"Mutator initialized" << endl;
+  double mut_chance;
+  double mut;
+  default_random_engine generator(1);
+  uniform_real_distribution<double> chance(0.0, 1.0);
+  uniform_real_distribution<double> angle(0.0, 2*M_PI);
+
+  for(int i=10; i<100; i++)
+    {
+      for(int j=0; j<10; j++)
+	{
+	  for(int k=0; k<3; k++)
+	    {
+	      mut_chance = chance(generator);
+	    
+	      if(mut_chance <= 0.5)
+		{
+		  mut = angle(generator);
+		  mutation[i][j][k] = mut;
+		}
+	    }
+	}
+    }
+  cout <<"Mutations complete" << endl;
+  return(mutation);
+		  
+}
+
