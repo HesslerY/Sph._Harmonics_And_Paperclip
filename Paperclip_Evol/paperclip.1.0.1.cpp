@@ -14,10 +14,13 @@
 #include <time.h>
 #include <random>
 #include <vector>
+#include <fstream>
+#include <sstream>
 using namespace std;
 
 double Pi = 3.14159265359;
 const int PopMAX = 100;
+default_random_engine generator(time(NULL)); // add a seed if something is going wrong to watch for consistent results
 
 // Code modified from https://codereview.stackexchange.com/questions/110793/insertion-sort-in-c
 void insertionSort(double array[], int length){         // Sort array into greatest -> least
@@ -150,12 +153,13 @@ vector<int> roulette(double fitness[], int Pop);
 
 vector<vector<vector<double> > > crossover(vector<vector<vector<double> > > & cross);
 
-vector<vector<vector<double> > > simple_mutation(vector<vector<vector<double> > > & mutation);
+vector<vector<vector<double> > > simple_mutation(vector<vector<vector<double> > > & mutation, double mut_chance);
+
+void Results(double fitness[], int generations, double mut_chance, string run_num);
 //
 
 int main()
 {
-
     const int numSeg = 10;
     int Gen = 0;
     srand(1);
@@ -167,8 +171,22 @@ int main()
 
     //Roulette on or off switch
     int Roul;
+    double mut_chance;
+    string run_num;
+    cout << "Enter run number: ";
+    cin >> run_num;
     cout << "Would you like to use Roulette? (1 = yes)  " ;
     cin >> Roul;
+    if(Roul ==1)
+      {
+	cout << "Please enter the desired mutation probability in decimal notation (between 0.0-1.0): " ;
+	cin >> mut_chance;
+	while(mut_chance > 1.0 || mut_chance < 0.0)
+	  {
+	    cout << "Enter a valid mutation probability: ";
+	    cin >> mut_chance;
+	  }
+      }
     
     
     // Create the population with user specified number of line segments
@@ -435,7 +453,7 @@ int main()
 	cross = crossover(cross);
 
 	// Simple mutation run
-	cross = simple_mutation(cross);
+	cross = simple_mutation(cross, mut_chance);
 
 	// send to next pop
 	for(int i=0; i<PopMAX; i++)
@@ -584,6 +602,7 @@ int main()
         cout << "{" << xcoord[numSeg] << ", " << ycoord[numSeg] << ", "<< zcoord[numSeg] << "}}] " << endl;
     }
 
+    Results(rankedFinalScores, Gen, mut_chance, run_num);
   
   
     return 0;
@@ -625,7 +644,7 @@ vector<int> roulette(double fitness[], int Pop)
   double ticker;
   vector<int> chosen;
   vector<int> check;
-  default_random_engine generator (1);
+  // default_random_engine generator (1);
   uniform_real_distribution<double> choice(0.0, 1.0);
   
   for(int k =0; k<10; k++)
@@ -676,7 +695,7 @@ vector<vector<vector<double> > > crossover(vector<vector<vector<double> > > & cr
   cout << "Crossover Initialized" << endl;
 
   double ticker;
-  default_random_engine generator(1);
+  // default_random_engine generator(1);
   uniform_real_distribution<double> choice(0.0,1.0);
 
   for(int i=10; i<100; i++) // individual being created
@@ -716,14 +735,13 @@ vector<vector<vector<double> > > crossover(vector<vector<vector<double> > > & cr
   return(cross);
 }
 
-vector<vector<vector<double> > > simple_mutation(vector<vector<vector<double> > > & mutation)
+vector<vector<vector<double> > > simple_mutation(vector<vector<vector<double> > > & mutation, double mut_chance)
 {
   cout <<"Mutator initialized" << endl;
-  double mut_chance;
   double mut;
-  default_random_engine generator(1);
+  //default_random_engine generator(1);
   uniform_real_distribution<double> chance(0.0, 1.0);
-  uniform_real_distribution<double> angle(0.0, 2*M_PI);
+  // normal_distribution<double> angle(0.0, 2*M_PI);
 
   for(int i=10; i<100; i++)
     {
@@ -735,7 +753,20 @@ vector<vector<vector<double> > > simple_mutation(vector<vector<vector<double> > 
 	    
 	      if(mut_chance <= 0.5)
 		{
+		  double mean = mutation[i][j][k];
+		  normal_distribution<double> angle(mean, .1);
 		  mut = angle(generator);
+		  while(mut <0 || mut> 2*M_PI)
+		    {
+		      if(mut < 0) 
+			{
+			  mut = mut * (-1.0);
+			}
+		      else if(mut > 2*M_PI)
+			{
+			  mut= mut - 2*M_PI;
+			}
+		    }
 		  mutation[i][j][k] = mut;
 		}
 	    }
@@ -746,3 +777,29 @@ vector<vector<vector<double> > > simple_mutation(vector<vector<vector<double> > 
 		  
 }
 
+void Results(double fitness[], int generations, double mut_chance, string run_num)
+{
+  double total=0;
+  double average;
+  for (int i=0; i<100; i++)
+    {
+      total = total + fitness[i];
+    }
+  average = total/100.0;
+  ofstream Run;
+  Run.open("Run_"+ run_num + ".txt");
+  Run <<"This is a test of paperclips1.0.1.cpp \n";
+  Run <<"GENERATIONS: "<< generations << endl;
+  Run <<"MUTATION PROBABILITY: " << mut_chance << endl;
+  Run <<"HIGHEST FITNESS SCORE: " << fitness[0]<< endl;
+  Run <<"TOTAL COMBINED FITNESS SCORE: "<< total << endl;
+  Run <<"AVERAGE FITNESS SCORE: " << average << endl;
+  Run << endl << "Individuals fitness scores: "<< endl;
+
+  for(int j=0; j<100; j++)
+    {
+      Run <<"INDIVIDUAL "<< j+1 << " : " << fitness[j] << endl;
+    }
+
+  Run.close();
+}
