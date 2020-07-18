@@ -148,8 +148,12 @@ double RotToCartesian(int numSeg, double rotx[], double roty[], double rotz[], d
     return 0;
 }
 
-// Ryan's Roulette test functions
-vector<int> roulette(double fitness[], int Pop);
+// Ryan's test functions
+int roulette(double fitness[], int Pop); // roulette selection function
+
+int tournament(double fitness[], int Pop); // tournament selection function
+
+int rank(double fitness[], int Pop); // rank tournament selection function
 
 vector<vector<vector<double> > > crossover(vector<vector<vector<double> > > & cross);
 
@@ -169,15 +173,21 @@ int main()
     // cin >> numSeg;
     cin >> Gen;
 
-    //Roulette on or off switch
+    //Ryan's on or off switches for tournament and roulette
     int Roul;
+    int Tour;
     double mut_chance;
     string run_num;
     cout << "Enter run number: ";
     cin >> run_num;
     cout << "Would you like to use Roulette? (1 = yes)  " ;
     cin >> Roul;
-    if(Roul ==1)
+    if (Roul != 1)
+      {
+	cout << "Would you like to use Tournament? (1 = yes) ";
+	cin >> Tour;
+      }
+    if(Roul == 1 || Tour == 1)
       {
 	cout << "Please enter the desired mutation probability in decimal notation (between 0.0-1.0): " ;
 	cin >> mut_chance;
@@ -225,11 +235,11 @@ int main()
         double nextPop[PopMAX][numSeg][3] = {};
         
 
-	if(Roul != 1)
+	if(Roul != 1 && Tour != 1)
 	  {
         
         // Evolution Algorithim 1: Take the 10 species with the best scores and pass them onto nextPop
-        
+        // reproduction
         // We want to organize the population by their testScores, so we make a temporary matrix to hold the ranked initial population:rankedPop
         // Also, a temporary ordered testScores array: rankedTestScores
         double rankedPop[PopMAX][numSeg][3] = {};
@@ -292,6 +302,7 @@ int main()
   
         // Evolution Algorithim 2: Take 10 random species, find the one with the best score, and [randomly mutate one of it's rotations to obtain an offspring] 10 times.
         // Do this whole algorithim 3 times
+	// mutation
         for(int a2 = 1; a2 <= 4; a2++){
             
             int choose10[10]; // Create an array with 10 random values, 0-99. This array determines the 10 random species that will undergo a tournament selection (a.k.a. simply choosing the highest score species out of the 10)
@@ -338,6 +349,7 @@ int main()
         
         // Evolution Algorithim 3: Take 20 random species, run two seperate tournaments to find 2 parents, and [swap a random array location with each other to obtain two offspring (for both combinations)] 5 times.
         // We do this Algorithm 5 times, for a total of 50 offspring
+	//crossover
         for(int a3 = 1; a3 <= 5; a3++){
             
             int choose10A[10], choose10B[10]; // Create 2 arrays with 10 random values, 0-99. These arrays determine the 20 random species that will undergo two seperate tournament selections
@@ -392,88 +404,177 @@ int main()
       
 	  }
 
-	// roulette call //
+	// Ryan's algorithms //
 
-	if(Roul ==1)
+	// Roulette: 
+	if (Roul == 1)
 	  {
-
-	cout << endl << endl << endl;
-        vector<int> chosen;
-	cout << "preparing to initialize roulette" << endl;
-	chosen = roulette(testScores, PopMAX);
-	for (int v=0; v<10; v++)
-	  {
-	    cout << "Individual "<< chosen[v] << " has been selected with fitness score: " << testScores[chosen[v]] << endl;
-	  }
-
-	for (int i=0; i<10; i++)
-	  {
-	    for (int j=0; j<numSeg; j++)
+	    int chosen[10];
+	    // reproduction: have roulette choose ten (for now) and pass them on to nextPop
+	    for (int i=0; i<10; i++)
 	      {
-		for (int k = 0; k<3; k++)
+		chosen[i] = roulette(testScores, PopMAX);
+		
+		for (int j=0; j<numSeg; j++)
 		  {
-		    nextPop[i][j][k]= pop[chosen[i]][j][k];
+		    for (int k=0; k<3; k++)
+		      {
+			nextPop[i][j][k] = pop[chosen[i]][j][k];
+
+		      }
 		  }
 	      }
-	  }
-
-	cout << "Roulette " << g << " Chosen:" << endl << endl;
-	for( int i = 0; i<10; i++)
-	  {
-	    cout << "# " << i+1 << " With score " << testScores[chosen[i]] << endl;
-	    for (int j = 0; j< numSeg; j++)
+	    
+		
+	    // repopulation: have roulette choose two parents and create two children from those two parents and repeat to create 90 "children" and send them to nextPop
+	    
+	    // initialize intermediate storage vector
+	    vector<vector<vector<double> > > cross;
+	    vector<vector<vector<double> > > ngen;
+	    for (int i=0; i<2; i++)
 	      {
-		cout <<"Node " << j << " : X-Rot = " << nextPop[i][j][0];
-		cout <<", Y-Rot = " << nextPop[i][j][1];
-		cout <<", Z-Rot = " << nextPop[i][j][2]<< endl;
-	      }
-	    cout <<endl;
-	  }
-	cout << endl << "Roulette Finialized"<< endl;
-
-	// Crossover call for parents
-
-
-	vector<vector<vector<double> > > cross;
-
-	for(int i=0; i < PopMAX; i++)
-	  {
-	    for(int j=0; j < numSeg; j++)
-	      {
-		for(int k=0; k< 3; k++)
+		for (int j=0; j<numSeg; j++)
 		  {
-		    cross.push_back(vector<vector<double> >());
-		    cross[i].push_back(vector<double>());
-		    cross[i][j].push_back(nextPop[i][j][k]);
+		    for (int k=0; k<3; k++)
+		      {
+			cross.push_back(vector<vector<double> > ());
+			cross[i].push_back(vector<double> ());
+			cross[i][j].push_back(0);
+		      }
 		  }
 	      }
-	  }
 
-
-	cross = crossover(cross);
-
-	// Simple mutation run
-	cross = simple_mutation(cross, mut_chance);
-
-	// send to next pop
-	for(int i=0; i<PopMAX; i++)
-	  {
-	    for(int j = 0; j< numSeg; j++)
+	    //selection and repopulation
+	    int parent[2];
+	    vector<vector<vector<double> > > children;
+	    vector<vector<vector<double> > > child;
+	    for(int i=0; i<90; i++)
 	      {
-		for(int k =0; k<3; k++)
+		for(int j=0; j<2; j++)
 		  {
-		    nextPop[i][j][k] = cross[i][j][k];
+		    parent[j] = roulette(testScores, PopMAX);
+		    for(int k=0; k<10; k++)
+		      {
+			for(int l=0; l<3; l++)
+			  {
+			    cross[j][k][l] = pop[parent[j]][k][l];
+			  }
+		      }
+		  }
+		child = crossover(cross);
+
+		for(int m=0; m<10; m++)
+		  {
+		    for(int n=0; n<3; n++)
+		      {
+			children.push_back(vector<vector<double> > ());
+			children[i].push_back(vector<double> ());
+			children[i][m].push_back(child[0][m][n]);
+		      }
 		  }
 	      }
+	    
+	    // mutate children
+	    children = simple_mutation(children, mut_chance);
+
+	    for(int x=10; x<100; x++)
+	      {
+		for(int y=0; y<10; y++)
+		  {
+		    for(int z=0; z<3; z++)
+		      {
+			nextPop[x][y][z] = children[x-10][y][z];
+		      }
+		  }
+	      }
+
+	   		
+
+	    
 	  }
 
-	cout << endl << endl << endl;
+	// Tournament:
+	if (Tour == 1)
+	  {
+	    int selected[10];
+	    // reproduction: have Tournament select ten (for now) individuals and pass them to nextPop
+	    for (int x=0; x<10; x++)
+	      {
+		selected[x] = tournament(testScores, PopMAX);
+		
+		for(int y=0; y<numSeg; y++)
+		  {
+		    for(int z=0; z<3; z++)
+		      {
+			nextPop[x][y][z] = pop[selected[x]][y][z];
+		      }
+		  }
+	      }
+	    // repopulation: have tournament select two parents and create two children and repeat until 90 have been created and send them to nextPop
+
+	    vector<vector<vector<double> > > cross;
+            vector<vector<vector<double> > > ngen;
+            for (int i=0; i<2; i++)                                                                                                                                                                                                                        {
+	      for (int j=0; j<numSeg; j++)
+		{
+		  for (int k=0; k<3; k++)
+		    {
+		      cross.push_back(vector<vector<double> > ());
+		      cross[i].push_back(vector<double> ());
+		      cross[i][j].push_back(0);
+		    }
+		}
+	    }
+
+
+	    int parent[2];
+            vector<vector<vector<double> > > children;
+            vector<vector<vector<double> > > child;
+            for(int i=0; i<90; i++)
+              {
+                for(int j=0; j<2; j++)
+                  {
+                    parent[j] = tournament(testScores, PopMAX);
+                    for(int k=0; k<10; k++)
+                      {
+                        for(int l=0; l<3; l++)
+                          {
+                            cross[j][k][l] = pop[parent[j]][k][l];                                                                                                                                                                                                     }
+                      }
+                  }
+                child = crossover(cross);
+
+                for(int m=0; m<10; m++)
+                  {
+                    for(int n=0; n<3; n++)
+                      {
+                        children.push_back(vector<vector<double> > ());
+                        children[i].push_back(vector<double> ());
+                        children[i][m].push_back(child[0][m][n]);
+                      }
+                  }
+              }
+
+            // mutate children
+            children = simple_mutation(children, mut_chance);
+
+            for(int x=10; x<100; x++)
+              {
+                for(int y=0; y<10; y++)
+                  {
+                    for(int z=0; z<3; z++)
+                      {
+                        nextPop[x][y][z] = children[x-10][y][z];
+                      }
+                  }
+              }
+
 	  }
 
-
-
-
-
+	// mutation: 
+	// this algorithm gets called for either version 
+	// function will give a user-defined chance at gene mutation for all the genes in all of the children 
+	// send back int
 
         
         /*
@@ -609,130 +710,136 @@ int main()
 }
 
 
-vector<int> roulette(double fitness[], int Pop)
+int roulette(double fitness[], int Pop)
 {
-  cout << "Roulette Initialized: " << endl;
+  // re-write fitness scores to ignore negative fitness scores and find the sum of positive fitness scores
+  vector<double> adjusted_fit;
+  double total;
+  for(int i=0; i<Pop; i++)
+    {
+      if (fitness[i] < 0.0)
+	{
+	  adjusted_fit.push_back(0.0);
+	}
+      else
+	{
+	  adjusted_fit.push_back(fitness[i]);
+	}
+      total = total + adjusted_fit[i];
+    }
+
+  // run a roulette selection
+  int chosen;
+  double select;
+  double over;
+  double under = 0;
+  uniform_real_distribution<double> choice(0.0, total);
+
+  select = choice(generator);
+
+  for (int x=0; x<Pop; x++)
+    {
+      under = under + adjusted_fit[x];
+      if( x == (Pop-1))
+	{
+	  over = under;
+	}
+      else
+	{
+	  over  = under + adjusted_fit[x+1];
+	}
+      
+      if (select == under || select > under && select < over)
+	{
+	  chosen  = x;
+	  x = Pop;
+	}
+    }
+  // return the selected individual     
+
+  return(chosen);
+}
+
+
+int tournament(double fitness[], int Pop)
+{
+  int chosen;
+  double select;
+  vector<double> tourney;
+  uniform_real_distribution<double> choice(0.0, 99.0);
   
-  double Total =0.0;
-  vector<double> Adjusted_Fit;
-  vector<double> Probability;
-  for (int i=0; i < Pop; i++)
+  // randomly select 10 individuals from the population
+  for (int i=0; i<10; i++)
     {
-      if (fitness[i] > 0.0)
+      for (int j=0; j<Pop; j++)
 	{
-	  Adjusted_Fit.push_back(fitness[i]);
+	  select = choice(generator);
+	  
+	  if(select == j || select < (j+1) && select > j)
+	    {
+	      tourney.push_back(fitness[j]);
+	      i=i+1;
+	    }
 	}
     }
 
-  for(int r=0; r<Adjusted_Fit.size(); r++)
-    {
-      cout << Adjusted_Fit[r] << endl;
-      Total = Total + Adjusted_Fit[r];
-    }
-
-
-
-
-  cout << "Total Fitness Sum is: "<< Total << endl;
-  for (int j=0; j < Adjusted_Fit.size(); j++)
-    {
-      Probability.push_back(Adjusted_Fit[j]/Total);
-    }
-
-
-  // generate random number between zero and one//
-  double ticker;
-  vector<int> chosen;
-  vector<int> check;
-  // default_random_engine generator (1);
-  uniform_real_distribution<double> choice(0.0, 1.0);
+  double max = tourney[0];
   
-  for(int k =0; k<10; k++)
+  // find the highest fitness score in that group
+  for (int k=0; k<10; k++)
     {
-      ticker = choice(generator);
-      double under = 0.0;
-      double over = 0.0;
-      for (int x = 0; x <Probability.size(); x++)
+      if (tourney[k] >= max)
 	{
-	  under = under + Probability[x];
-	  if(x < Probability.size()-1)
-	    {
-	      over = under + Probability[x+1];
-	    }
-	  else
-	    {
-	      over = under;
-	    }
-	  if(ticker >= under && ticker <= over || ticker == under)
-	    {
-	      check.push_back(x);
-	      x = Probability.size();
-	    }
-	  else if ( x == Probability.size()-1)
-	    {
-	      check.push_back(x);
-	      x = Probability.size();
-	    }
+	  max = tourney[k];
 	}
     }
 
-  for(int a=0; a<Pop; a++)
+  // find the individual the score belongs to and return the individual
+  for(int x=0; x<Pop; x++)
     {
-      for(int c=0; c < check.size(); c++)
+      if( fitness[x] == max)
 	{
-	  if(Adjusted_Fit[check[c]] == fitness[a])
-	    {
-	      chosen.push_back(a);
-	    }
+	  chosen = x;
+	  x = Pop;
 	}
     }
+  return(chosen);
+}
+
+int rank(double fitness[], int Pop) // this is just for Ryan to have in case it wants to be used in the future
+{
+  int chosen;
   return (chosen);
 }
 
 
+
 vector<vector<vector<double> > > crossover(vector<vector<vector<double> > > & cross)
 {
-  cout << "Crossover Initialized" << endl;
-
-  double ticker;
-  // default_random_engine generator(1);
-  uniform_real_distribution<double> choice(0.0,1.0);
-
-  for(int i=10; i<100; i++) // individual being created
-    {
-      for(int j=0; j<10; j++) // parent 1
+  double select;
+  uniform_real_distribution<double> choice(0.0, 1.0);
+  vector<vector<vector<double> > > children;
+      for(int j=0; j<10; j++)
 	{
-	  for(int k=0; k<10; k++) //parent 2
+	  for(int k=0; k<3; k++)
 	    {
-	      for(int x=0; x<10; x++) // segment (chomosome)
+	      select = choice(generator);
+	      if (select <= 0.5)
 		{
-		  if( j == k)
-		    {
-		      k=k+1;
-		    }
-		  else
-		    {
-		      for( int y=0; y<3; y++)
-			{
-			  ticker = choice(generator);
-			  if(ticker < .5 )
-			    {
-			  
-			  cross[i][x][y] = cross[j][x][y];
-			    }
-			  else
-			    {
-			  
-			      cross[i][x][y] = cross[k][x][y];
-			    }
-			}
-		    }
+		  children.push_back(vector<vector<double> > ());
+		  children[0].push_back(vector<double> ());
+		  children[0][j].push_back(cross[0][j][k]);
+		}
+	      else 
+		{
+		  children.push_back(vector<vector<double> > ());
+		  children[0].push_back(vector<double> ());
+		  children[0][j].push_back(cross[1][j][k]);
 		}
 	    }
 	}
-    }		  
-  cout << "Crossover Finalized" << endl;
-  return(cross);
+
+  return(children);
 }
 
 vector<vector<vector<double> > > simple_mutation(vector<vector<vector<double> > > & mutation, double mut_chance)
@@ -743,7 +850,7 @@ vector<vector<vector<double> > > simple_mutation(vector<vector<vector<double> > 
   uniform_real_distribution<double> chance(0.0, 1.0);
   // normal_distribution<double> angle(0.0, 2*M_PI);
 
-  for(int i=10; i<100; i++)
+  for(int i=0; i<90; i++)
     {
       for(int j=0; j<10; j++)
 	{
