@@ -159,7 +159,7 @@ vector<vector<vector<double> > > crossover(vector<vector<vector<double> > > & cr
 
 vector<vector<vector<double> > > simple_mutation(vector<vector<vector<double> > > & mutation, double mut_chance);
 
-void Results(double fitness[], int generations, double mut_chance, string run_num);
+void Results(double fitness[], int generations, double mut_chance, string run_num, vector<double> high_score, vector<double> average_score, int Tour, int Roul);
 //
 
 int main()
@@ -211,6 +211,12 @@ int main()
             }
         }
     }
+
+
+    // create vectors for storing generation information
+    vector<double> high_score;
+    vector<double> average_score;
+
     
     
     // Now, we evolve. We loop the following code for each generation
@@ -235,6 +241,20 @@ int main()
         // The following matrix will hold the next generation's species. In the end of the evolution, we will make pop = nextPop, so the next evolution afterwards will act on nextPop
 	// double nextPop[PopMAX][numSeg][3] = {};
         
+	// store information at the begining of each generation
+	double rank_scores[PopMAX] = {};
+	double total_score=0;
+	for(int x=0; x<PopMAX; x++)
+	  {
+	    rank_scores[x] = testScores[x];
+	    total_score = total_score + testScores[x];
+	  }
+
+	insertionSort(rank_scores, PopMAX);
+	high_score.push_back(rank_scores[0]);
+	average_score.push_back((total_score/PopMAX));
+
+
 
 	if(Roul != 1 && Tour != 1)
 	  {
@@ -574,6 +594,12 @@ int main()
 
 	  }
 
+
+
+	// vectors for information saving
+
+
+
 	// mutation: 
 	// this algorithm gets called for either version 
 	// function will give a user-defined chance at gene mutation for all the genes in all of the children 
@@ -706,7 +732,7 @@ int main()
         cout << "{" << xcoord[numSeg] << ", " << ycoord[numSeg] << ", "<< zcoord[numSeg] << "}}] " << endl;
     }
 
-    Results(rankedFinalScores, Gen, mut_chance, run_num);
+    Results(rankedFinalScores, Gen, mut_chance, run_num, high_score, average_score, Tour, Roul);
   
   
     return 0;
@@ -905,7 +931,7 @@ vector<vector<vector<double> > > simple_mutation(vector<vector<vector<double> > 
 		  
 }
 
-void Results(double fitness[], int generations, double mut_chance, string run_num)
+void Results(double fitness[], int generations, double mut_chance, string run_num, vector<double> high_score, vector<double> average_score, int Tour, int Roul)
 {
   double total=0;
   double average;
@@ -917,12 +943,31 @@ void Results(double fitness[], int generations, double mut_chance, string run_nu
   ofstream Run;
   Run.open("Run_"+ run_num + ".txt");
   Run <<"This is a test of paperclips1.0.1.cpp \n";
+  if(Tour == 1)
+    {
+      Run << "USING TOURNAMENT: "<< endl;
+    }
+  if(Roul == 1)
+    {
+      Run << "USING ROULETTE: " << endl;
+    }
   Run <<"GENERATIONS: "<< generations << endl;
   Run <<"MUTATION PROBABILITY: " << mut_chance << endl;
   Run <<"HIGHEST FITNESS SCORE: " << fitness[0]<< endl;
   Run <<"TOTAL COMBINED FITNESS SCORE: "<< total << endl;
   Run <<"AVERAGE FITNESS SCORE: " << average << endl;
-  Run << endl << "Individuals fitness scores: "<< endl;
+
+  Run <<"GENERATION TRENDS: " << endl;
+  
+  for (int x=0; x<generations; x++)
+    {
+      Run << "Gen " << x << ": " << endl;
+      Run << "      High Score: " << high_score[x] << endl;
+      Run << "      Ave. Score: " << average_score[x] << endl;
+      Run << endl;
+    }
+
+  Run << endl << "Final Generation Individuals Fitness Scores: "<< endl;
 
   for(int j=0; j<100; j++)
     {
