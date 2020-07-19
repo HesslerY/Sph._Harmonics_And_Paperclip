@@ -201,6 +201,7 @@ int main()
     
     // Create the population with user specified number of line segments
     double pop[PopMAX][numSeg][3];
+    double nextPop[PopMAX][numSeg][3];
     
     // Randomly fill the population. First step is to give each x, y, and z rotation a random value between 0 and 2 pi.
     for (int i = 0; i < PopMAX; i++){                                       // for each antenna
@@ -232,7 +233,7 @@ int main()
         }
         
         // The following matrix will hold the next generation's species. In the end of the evolution, we will make pop = nextPop, so the next evolution afterwards will act on nextPop
-        double nextPop[PopMAX][numSeg][3] = {};
+	// double nextPop[PopMAX][numSeg][3] = {};
         
 
 	if(Roul != 1 && Tour != 1)
@@ -406,21 +407,22 @@ int main()
 
 	// Ryan's algorithms //
 
+	// double nextPop[PopMAX][numSeg][3] = {}
 	// Roulette: 
 	if (Roul == 1)
 	  {
-	    int chosen[10];
+	    int chosen[11];
 	    // reproduction: have roulette choose ten (for now) and pass them on to nextPop
 	    for (int i=0; i<10; i++)
 	      {
 		chosen[i] = roulette(testScores, PopMAX);
-		
+		cout << "Individual " << chosen[i] << " has been selected with fitness score: " << testScores[chosen[i]] << endl;
 		for (int j=0; j<numSeg; j++)
 		  {
 		    for (int k=0; k<3; k++)
 		      {
 			nextPop[i][j][k] = pop[chosen[i]][j][k];
-
+			
 		      }
 		  }
 	      }
@@ -443,7 +445,8 @@ int main()
 		      }
 		  }
 	      }
-
+	    cout << "storage vector initialized" << endl;
+	    cout << "begining crossover" << endl;
 	    //selection and repopulation
 	    int parent[2];
 	    vector<vector<vector<double> > > children;
@@ -496,12 +499,12 @@ int main()
 	// Tournament:
 	if (Tour == 1)
 	  {
-	    int selected[10];
+	    int selected[11];
 	    // reproduction: have Tournament select ten (for now) individuals and pass them to nextPop
 	    for (int x=0; x<10; x++)
 	      {
 		selected[x] = tournament(testScores, PopMAX);
-		
+		cout << "Individual " << selected[x] << " has been selected with fitness score: " << testScores[selected[x]] << endl;
 		for(int y=0; y<numSeg; y++)
 		  {
 		    for(int z=0; z<3; z++)
@@ -511,7 +514,7 @@ int main()
 		  }
 	      }
 	    // repopulation: have tournament select two parents and create two children and repeat until 90 have been created and send them to nextPop
-
+	    cout<< "beginging crossover" << endl;
 	    vector<vector<vector<double> > > cross;
             vector<vector<vector<double> > > ngen;
             for (int i=0; i<2; i++)                                                                                                                                                                                                                        {
@@ -717,9 +720,9 @@ int roulette(double fitness[], int Pop)
   double total;
   for(int i=0; i<Pop; i++)
     {
-      if (fitness[i] < 0.0)
+      if (fitness[i] <= 0.0)
 	{
-	  adjusted_fit.push_back(0.0);
+	  i=i+1;
 	}
       else
 	{
@@ -727,9 +730,10 @@ int roulette(double fitness[], int Pop)
 	}
       total = total + adjusted_fit[i];
     }
-
+  
   // run a roulette selection
   int chosen;
+  int check;
   double select;
   double over;
   double under = 0;
@@ -737,12 +741,13 @@ int roulette(double fitness[], int Pop)
 
   select = choice(generator);
 
-  for (int x=0; x<Pop; x++)
+  for (int x=0; x<adjusted_fit.size(); x++)
     {
       under = under + adjusted_fit[x];
-      if( x == (Pop-1))
+      if( x == (adjusted_fit.size()-1))
 	{
-	  over = under;
+	  check = x;
+	  x = adjusted_fit.size();
 	}
       else
 	{
@@ -751,8 +756,16 @@ int roulette(double fitness[], int Pop)
       
       if (select == under || select > under && select < over)
 	{
-	  chosen  = x;
-	  x = Pop;
+	  check  = x;
+	  x = adjusted_fit.size();
+	}
+    }
+
+  for( int y=0; y<Pop; y++)
+    {
+      if(fitness[y] == adjusted_fit[check])
+	{
+	  chosen = y;
 	}
     }
   // return the selected individual     
@@ -771,36 +784,44 @@ int tournament(double fitness[], int Pop)
   // randomly select 10 individuals from the population
   for (int i=0; i<10; i++)
     {
-      for (int j=0; j<Pop; j++)
-	{
-	  select = choice(generator);
-	  
-	  if(select == j || select < (j+1) && select > j)
+      select = choice(generator);
+      for (int j=0; j<100; j++)
+	{ 
+	  if ( j == 99)
+	    {
+	      tourney.push_back(fitness[j]);
+	      i = i+1;
+	    }
+	  else if(select == j || select < (j+1) && select > j)
 	    {
 	      tourney.push_back(fitness[j]);
 	      i=i+1;
 	    }
 	}
     }
-
   double max = tourney[0];
   
   // find the highest fitness score in that group
   for (int k=0; k<10; k++)
     {
-      if (tourney[k] >= max)
+      if (tourney[k] > max)
 	{
 	  max = tourney[k];
 	}
     }
 
   // find the individual the score belongs to and return the individual
-  for(int x=0; x<Pop; x++)
+  for(int x=0; x<100; x++)
     {
       if( fitness[x] == max)
 	{
 	  chosen = x;
-	  x = Pop;
+	  x = 100;
+	}
+      if( x == 99)
+	{
+	  chosen = 99;
+	  x = 100;
 	}
     }
   return(chosen);
