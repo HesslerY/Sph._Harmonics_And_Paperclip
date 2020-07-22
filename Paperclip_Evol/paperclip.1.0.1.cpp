@@ -175,6 +175,8 @@ int main()
 
     //Ryan's on or off switches for tournament and roulette
     int Roul;
+    int roul_num;
+    int tour_num;
     int Tour;
     double mut_chance;
     string run_num;
@@ -182,11 +184,8 @@ int main()
     cin >> run_num;
     cout << "Would you like to use Roulette? (1 = yes)  " ;
     cin >> Roul;
-    if (Roul != 1)
-      {
-	cout << "Would you like to use Tournament? (1 = yes) ";
-	cin >> Tour;
-      }
+    cout << "Would you like to use Tournament? (1 = yes) ";
+    cin >> Tour;
     if(Roul == 1 || Tour == 1)
       {
 	cout << "Please enter the desired mutation probability in decimal notation (between 0.0-1.0): " ;
@@ -197,12 +196,24 @@ int main()
 	    cin >> mut_chance;
 	  }
       }
+    if(Roul == 1 && Tour == 1)
+      {
+	cout << "Please enter how many individuals will be sent to roulette (10 max). The rest will be sent to tournament: ";
+	cin >> roul_num;
+	while( roul_num < 0 || roul_num > 10)
+	  {
+	    cout << "Enter a valid integer: ";
+	    cin >> roul_num;
+	  }
+	tour_num = 10 - roul_num;
+      }
     
     
     // Create the population with user specified number of line segments
     double pop[PopMAX][numSeg][3];
     double nextPop[PopMAX][numSeg][3];
     
+                                                                                                                               
     // Randomly fill the population. First step is to give each x, y, and z rotation a random value between 0 and 2 pi.
     for (int i = 0; i < PopMAX; i++){                                       // for each antenna
         for (int j = 0; j < numSeg; j++){                                      // for each segment
@@ -427,6 +438,7 @@ int main()
 
 	// Ryan's algorithms //
 
+      /*
 	// double nextPop[PopMAX][numSeg][3] = {}
 	// Roulette: 
 	if (Roul == 1)
@@ -596,16 +608,132 @@ int main()
 
 
 
-	// vectors for information saving
+       */
+
+       
+
+
+	// better algorithm(?)
+	if(Tour == 1 && Roul == 1)
+	  { 
+	    cout << "Begin initializing arays" << endl;
+	    //pre-select individuals and set them into arrays for later use
+	    vector<int> tour_indiv;                                                                                                                                                                                                                     vector<int> roul_indiv;     
+	    for(int i=0; i<PopMAX; i++)
+	      {
+		if(Tour == 1)
+		  {
+		    tour_indiv.push_back(tournament(testScores, PopMAX));
+		  }
+		if(Roul ==1)
+		  {
+		    roul_indiv.push_back(roulette(testScores, PopMAX));
+		  }
+	      }
+	    cout << "Arrays initialized" << endl;
+	    
+	    // Reproduction
+	    cout << "Begining Reproduction" << endl;
+	    for(int i=0; i<10; i++)
+	      {
+		for(int j=0; j<numSeg; j++)
+		  {
+		    for(int k=0; k<3; k++)
+		      {
+			if(i < roul_num)
+			  {
+			    nextPop[i][j][k] = pop[roul_indiv[i]][j][k];
+			  }
+			else
+			  {
+			    nextPop[i][j][k] = pop[tour_indiv[i]][j][k];
+			  }
+		      }
+		  }
+	      }
+	    cout << "Reproduction complete" << endl;
+	    // crossover
+	    // prime vectors to store information
+	    cout << "Begining Crossover" << endl;
+	    cout << "initialize storage arrays" << endl;
+	    vector<vector<vector<double> > > cross;
+	    vector<vector<vector<double> > > children;
+	    
+	    for(int i=0; i<90; i++)
+	      {
+		for(int j=0; j<numSeg; j++)
+		  {
+		    for(int k=0; k<3; k++)
+		      {
+			if (i<2)
+			  {
+			    cross.push_back(vector<vector<double> > ());
+			    cross[i].push_back(vector<double> ());
+			    cross[i][j].push_back(0);
+			  }
+			children.push_back(vector<vector<double> > ());
+			children[i].push_back(vector<double> ());
+			children[i][j].push_back(0);
+		      }
+		  }
+	      }
+	    cout << "Arrays Initialized" << endl;
+	    cout << "crossover initialized" << endl;
+	    for(int i=0; i<90; i=i+2)
+	      {
+		for(int j=0; j<10; j++)
+		  {
+		    for(int k=0; k<3; k++)
+		      {
+			if ( i<(9*roul_num))
+			  {
+			    cross[0][j][k] = pop[roul_indiv[i+roul_num]][j][k];
+			    cross[1][j][k] = pop[roul_indiv[i+1+roul_num]][j][k];
+			  }
+			else
+			  {
+			    cross[0][j][k] = pop[tour_indiv[i+tour_num]][j][k];
+			    cross[1][j][k] = pop[tour_indiv[i+1+tour_num]][j][k];
+			  }
+		      }
+		  }
+		cross = crossover(cross);
+
+		for(int x=0; x<10; x++)
+		  {
+		    for( int y=0; y<3; y++)
+		      {
+			children[i][x][y] = cross[0][x][y];
+			children[i+1][x][y] = cross[1][x][y];
+		      }
+		  }
+	      }
+		 
+
+	    cout << "Crossover complete" << endl;
+	    // mutations
+	    cout << "Begin Mutations" << endl;
+	    children = simple_mutation(children, mut_chance);
+
+	    for(int x=10; x<100; x++)
+	      {
+		for(int y=0; y<10; y++)
+		  {
+		    for( int z=0; z<3; z++)
+		      {
+			nextPop[x][y][z] = children[x-10][y][z];
+		      }
+		  }
+	      }
+	  }
+	cout << "Muatation complete" << endl;
+	cout << "ALGORITHM COMPLETE" << endl << endl;
+	
 
 
 
-	// mutation: 
-	// this algorithm gets called for either version 
-	// function will give a user-defined chance at gene mutation for all the genes in all of the children 
-	// send back int
 
-        
+ 
         /*
          // Evolution Algorithim 4: Introduce 10 random species into the population
          // First step is to give each value in each species random number between -1 and 1. Then, we normalize the species values to 1
@@ -624,8 +752,7 @@ int main()
          for(int j =0; j < SphHarMAX; j++){
          nextPop[i][j] = nextPop[i][j] / sqrt(integral);
          }
-         integral = 0;
-         }
+         integ         }
          */
         // Finally, we equate the old pop to the new pop, allowing the next loop to operate on the new population
         for (int i = 0; i < PopMAX; i++){
@@ -744,6 +871,17 @@ int roulette(double fitness[], int Pop)
   // re-write fitness scores to ignore negative fitness scores and find the sum of positive fitness scores
   vector<double> adjusted_fit;
   double total;
+  double min =0;
+  
+  for(int x=0; x<100; x++)
+    {
+      if(fitness[x] < min)
+	{
+	  min = fitness[x];
+	}
+    }
+	    
+      
   for(int i=0; i<Pop; i++)
     {
       if (fitness[i] <= 0.0)
@@ -863,30 +1001,23 @@ int rank(double fitness[], int Pop) // this is just for Ryan to have in case it 
 
 vector<vector<vector<double> > > crossover(vector<vector<vector<double> > > & cross)
 {
-  double select;
+  double swap;
   uniform_real_distribution<double> choice(0.0, 1.0);
-  vector<vector<vector<double> > > children;
-      for(int j=0; j<10; j++)
+  for(int i=0; i<10; i++)
+    {
+      for (int j=0; j<3; j++)
 	{
-	  for(int k=0; k<3; k++)
+	  swap = choice(generator);
+	  if(swap < 0.5)
 	    {
-	      select = choice(generator);
-	      if (select <= 0.5)
-		{
-		  children.push_back(vector<vector<double> > ());
-		  children[0].push_back(vector<double> ());
-		  children[0][j].push_back(cross[0][j][k]);
-		}
-	      else 
-		{
-		  children.push_back(vector<vector<double> > ());
-		  children[0].push_back(vector<double> ());
-		  children[0][j].push_back(cross[1][j][k]);
-		}
+	      double temp = cross[0][i][j];
+	      cross[0][i][j] = cross[1][i][j];
+	      cross[1][i][j] = temp;
 	    }
 	}
-
-  return(children);
+    }
+	  
+  return(cross);
 }
 
 vector<vector<vector<double> > > simple_mutation(vector<vector<vector<double> > > & mutation, double mut_chance)
@@ -908,7 +1039,7 @@ vector<vector<vector<double> > > simple_mutation(vector<vector<vector<double> > 
 	      if(mut_chance <= 0.5)
 		{
 		  double mean = mutation[i][j][k];
-		  normal_distribution<double> angle(mean, .1);
+		  normal_distribution<double> angle(mean, .05);
 		  mut = angle(generator);
 		  while(mut <0 || mut> 2*M_PI)
 		    {
