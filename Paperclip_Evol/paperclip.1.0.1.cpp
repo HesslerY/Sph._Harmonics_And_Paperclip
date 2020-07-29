@@ -105,6 +105,11 @@ double FScore(int numSeg, double rotx[], double roty[], double rotz[]){
     for (int i = 0; i < numSeg - 1; i++){
         fScore += crossVec[i][2];
     }
+
+    if(fScore < 0.0)
+      {
+	fScore = fScore*(-1.0);
+      }
     
     return fScore;
 }
@@ -157,16 +162,18 @@ int rank(double fitness[], int Pop); // rank tournament selection function
 
 vector<vector<vector<double> > > crossover(vector<vector<vector<double> > > & cross);
 
-vector<vector<vector<double> > > simple_mutation(vector<vector<vector<double> > > & mutation, double mut_chance);
+vector<vector<vector<double> > > simple_mutation(vector<vector<vector<double> > > & mutation, double mut_chance, double std_dev);
 
 void Results(double fitness[], int generations, double mut_chance, string run_num, vector<double> high_score, vector<double> average_score, int Tour, int Roul);
+
+void data(int generations, string run_num, vector<double> high_score, vector<double> average_score);
 //
 
 int main()
 {
     const int numSeg = 10;
     int Gen = 0;
-    srand(1);
+    srand(time(NULL));
     
     // Enter the number of antenna segments
     cout << "Enter the number of generations:" << endl;
@@ -179,14 +186,17 @@ int main()
     int tour_num;
     int Tour;
     double mut_chance;
+    double std_dev;
     string run_num;
     cout << "Enter run number: ";
     cin >> run_num;
-    cout << "Would you like to use Roulette? (1 = yes)  " ;
+    cout << "Would you like to use Ryan's Algorithm? (1 = yes)  " ;
     cin >> Roul;
-    cout << "Would you like to use Tournament? (1 = yes) ";
-    cin >> Tour;
-    if(Roul == 1 || Tour == 1)
+    if (Roul == 1)
+      {
+	Tour = Roul;
+      }
+    if(Roul == 1 && Tour == 1)
       {
 	cout << "Please enter the desired mutation probability in decimal notation (between 0.0-1.0): " ;
 	cin >> mut_chance;
@@ -195,6 +205,8 @@ int main()
 	    cout << "Enter a valid mutation probability: ";
 	    cin >> mut_chance;
 	  }
+	cout << "Please enter the (positive) standard deviation: ";
+	cin >> std_dev;
       }
     if(Roul == 1 && Tour == 1)
       {
@@ -436,187 +448,14 @@ int main()
       
 	  }
 
-	// Ryan's algorithms //
-
-      /*
-	// double nextPop[PopMAX][numSeg][3] = {}
-	// Roulette: 
-	if (Roul == 1)
-	  {
-	    int chosen[11];
-	    // reproduction: have roulette choose ten (for now) and pass them on to nextPop
-	    for (int i=0; i<10; i++)
-	      {
-		chosen[i] = roulette(testScores, PopMAX);
-		cout << "Individual " << chosen[i] << " has been selected with fitness score: " << testScores[chosen[i]] << endl;
-		for (int j=0; j<numSeg; j++)
-		  {
-		    for (int k=0; k<3; k++)
-		      {
-			nextPop[i][j][k] = pop[chosen[i]][j][k];
-			
-		      }
-		  }
-	      }
-	    
-		
-	    // repopulation: have roulette choose two parents and create two children from those two parents and repeat to create 90 "children" and send them to nextPop
-	    
-	    // initialize intermediate storage vector
-	    vector<vector<vector<double> > > cross;
-	    vector<vector<vector<double> > > ngen;
-	    for (int i=0; i<2; i++)
-	      {
-		for (int j=0; j<numSeg; j++)
-		  {
-		    for (int k=0; k<3; k++)
-		      {
-			cross.push_back(vector<vector<double> > ());
-			cross[i].push_back(vector<double> ());
-			cross[i][j].push_back(0);
-		      }
-		  }
-	      }
-	    cout << "storage vector initialized" << endl;
-	    cout << "begining crossover" << endl;
-	    //selection and repopulation
-	    int parent[2];
-	    vector<vector<vector<double> > > children;
-	    vector<vector<vector<double> > > child;
-	    for(int i=0; i<90; i++)
-	      {
-		for(int j=0; j<2; j++)
-		  {
-		    parent[j] = roulette(testScores, PopMAX);
-		    for(int k=0; k<10; k++)
-		      {
-			for(int l=0; l<3; l++)
-			  {
-			    cross[j][k][l] = pop[parent[j]][k][l];
-			  }
-		      }
-		  }
-		child = crossover(cross);
-
-		for(int m=0; m<10; m++)
-		  {
-		    for(int n=0; n<3; n++)
-		      {
-			children.push_back(vector<vector<double> > ());
-			children[i].push_back(vector<double> ());
-			children[i][m].push_back(child[0][m][n]);
-		      }
-		  }
-	      }
-	    
-	    // mutate children
-	    children = simple_mutation(children, mut_chance);
-
-	    for(int x=10; x<100; x++)
-	      {
-		for(int y=0; y<10; y++)
-		  {
-		    for(int z=0; z<3; z++)
-		      {
-			nextPop[x][y][z] = children[x-10][y][z];
-		      }
-		  }
-	      }
-
-	   		
-
-	    
-	  }
-
-	// Tournament:
-	if (Tour == 1)
-	  {
-	    int selected[11];
-	    // reproduction: have Tournament select ten (for now) individuals and pass them to nextPop
-	    for (int x=0; x<10; x++)
-	      {
-		selected[x] = tournament(testScores, PopMAX);
-		cout << "Individual " << selected[x] << " has been selected with fitness score: " << testScores[selected[x]] << endl;
-		for(int y=0; y<numSeg; y++)
-		  {
-		    for(int z=0; z<3; z++)
-		      {
-			nextPop[x][y][z] = pop[selected[x]][y][z];
-		      }
-		  }
-	      }
-	    // repopulation: have tournament select two parents and create two children and repeat until 90 have been created and send them to nextPop
-	    cout<< "beginging crossover" << endl;
-	    vector<vector<vector<double> > > cross;
-            vector<vector<vector<double> > > ngen;
-            for (int i=0; i<2; i++)                                                                                                                                                                                                                        {
-	      for (int j=0; j<numSeg; j++)
-		{
-		  for (int k=0; k<3; k++)
-		    {
-		      cross.push_back(vector<vector<double> > ());
-		      cross[i].push_back(vector<double> ());
-		      cross[i][j].push_back(0);
-		    }
-		}
-	    }
-
-
-	    int parent[2];
-            vector<vector<vector<double> > > children;
-            vector<vector<vector<double> > > child;
-            for(int i=0; i<90; i++)
-              {
-                for(int j=0; j<2; j++)
-                  {
-                    parent[j] = tournament(testScores, PopMAX);
-                    for(int k=0; k<10; k++)
-                      {
-                        for(int l=0; l<3; l++)
-                          {
-                            cross[j][k][l] = pop[parent[j]][k][l];                                                                                                                                                                                                     }
-                      }
-                  }
-                child = crossover(cross);
-
-                for(int m=0; m<10; m++)
-                  {
-                    for(int n=0; n<3; n++)
-                      {
-                        children.push_back(vector<vector<double> > ());
-                        children[i].push_back(vector<double> ());
-                        children[i][m].push_back(child[0][m][n]);
-                      }
-                  }
-              }
-
-            // mutate children
-            children = simple_mutation(children, mut_chance);
-
-            for(int x=10; x<100; x++)
-              {
-                for(int y=0; y<10; y++)
-                  {
-                    for(int z=0; z<3; z++)
-                      {
-                        nextPop[x][y][z] = children[x-10][y][z];
-                      }
-                  }
-              }
-
-	  }
-
-
-
-       */
 
        
 
 
-	// better algorithm(?)
+	// Ryan's algorithm
 	if(Tour == 1 && Roul == 1)
 	  { 
-	    cout << "Begin initializing arays" << endl;
+	    
 	    //pre-select individuals and set them into arrays for later use
 	    vector<int> tour_indiv;                                                                                                                                                                                                                     vector<int> roul_indiv;     
 	    for(int i=0; i<PopMAX; i++)
@@ -630,10 +469,10 @@ int main()
 		    roul_indiv.push_back(roulette(testScores, PopMAX));
 		  }
 	      }
-	    cout << "Arrays initialized" << endl;
+	  
 	    
 	    // Reproduction
-	    cout << "Begining Reproduction" << endl;
+	    
 	    for(int i=0; i<10; i++)
 	      {
 		for(int j=0; j<numSeg; j++)
@@ -651,11 +490,9 @@ int main()
 		      }
 		  }
 	      }
-	    cout << "Reproduction complete" << endl;
+	    
 	    // crossover
 	    // prime vectors to store information
-	    cout << "Begining Crossover" << endl;
-	    cout << "initialize storage arrays" << endl;
 	    vector<vector<vector<double> > > cross;
 	    vector<vector<vector<double> > > children;
 	    
@@ -677,8 +514,7 @@ int main()
 		      }
 		  }
 	      }
-	    cout << "Arrays Initialized" << endl;
-	    cout << "crossover initialized" << endl;
+  
 	    for(int i=0; i<90; i=i+2)
 	      {
 		for(int j=0; j<10; j++)
@@ -710,10 +546,10 @@ int main()
 	      }
 		 
 
-	    cout << "Crossover complete" << endl;
+	    
 	    // mutations
-	    cout << "Begin Mutations" << endl;
-	    children = simple_mutation(children, mut_chance);
+	    
+	    children = simple_mutation(children, mut_chance, std_dev);
 
 	    for(int x=10; x<100; x++)
 	      {
@@ -726,8 +562,6 @@ int main()
 		  }
 	      }
 	  }
-	cout << "Muatation complete" << endl;
-	cout << "ALGORITHM COMPLETE" << endl << endl;
 	
 
 
@@ -860,7 +694,7 @@ int main()
     }
 
     Results(rankedFinalScores, Gen, mut_chance, run_num, high_score, average_score, Tour, Roul);
-  
+    data(Gen, run_num, high_score, average_score);
   
     return 0;
 }
@@ -881,19 +715,21 @@ int roulette(double fitness[], int Pop)
 	}
     }
 	    
-      
+    
   for(int i=0; i<Pop; i++)
     {
+      /*
       if (fitness[i] <= 0.0)
 	{
-	  i=i+1;
-	}
-      else
-	{
+	  i++;
+	}/
+	else */
+	
 	  adjusted_fit.push_back(fitness[i]);
-	}
+	
       total = total + adjusted_fit[i];
     }
+  
   
   // run a roulette selection
   int chosen;
@@ -918,7 +754,7 @@ int roulette(double fitness[], int Pop)
 	  over  = under + adjusted_fit[x+1];
 	}
       
-      if (select == under || select > under && select < over)
+      if (select <= under)
 	{
 	  check  = x;
 	  x = adjusted_fit.size();
@@ -1020,10 +856,11 @@ vector<vector<vector<double> > > crossover(vector<vector<vector<double> > > & cr
   return(cross);
 }
 
-vector<vector<vector<double> > > simple_mutation(vector<vector<vector<double> > > & mutation, double mut_chance)
+vector<vector<vector<double> > > simple_mutation(vector<vector<vector<double> > > & mutation, double mut_chance, double std_dev)
 {
-  cout <<"Mutator initialized" << endl;
+  
   double mut;
+  double prob;
   //default_random_engine generator(1);
   uniform_real_distribution<double> chance(0.0, 1.0);
   // normal_distribution<double> angle(0.0, 2*M_PI);
@@ -1034,18 +871,19 @@ vector<vector<vector<double> > > simple_mutation(vector<vector<vector<double> > 
 	{
 	  for(int k=0; k<3; k++)
 	    {
-	      mut_chance = chance(generator);
+	      prob = chance(generator);
 	    
-	      if(mut_chance <= 0.5)
+	      if(prob <= mut_chance)
 		{
 		  double mean = mutation[i][j][k];
-		  normal_distribution<double> angle(mean, .05);
+		  normal_distribution<double> angle(mean, std_dev);
+		  
 		  mut = angle(generator);
-		  while(mut <0 || mut> 2*M_PI)
+		  while(mut <0 || mut > 2*M_PI)
 		    {
 		      if(mut < 0) 
 			{
-			  mut = mut * (-1.0);
+			  mut = mut + 2.0*M_PI; 
 			}
 		      else if(mut > 2*M_PI)
 			{
@@ -1057,7 +895,7 @@ vector<vector<vector<double> > > simple_mutation(vector<vector<vector<double> > 
 	    }
 	}
     }
-  cout <<"Mutations complete" << endl;
+  
   return(mutation);
 		  
 }
@@ -1066,6 +904,23 @@ void Results(double fitness[], int generations, double mut_chance, string run_nu
 {
   double total=0;
   double average;
+  double maximum=0 ;
+  int max;
+
+  for(int m=0; m<100; m++)
+    {
+      if (high_score[m] > maximum)
+	{
+	  maximum= high_score[m];
+	  max = m;
+	}
+    }
+
+  if(fitness[0] > maximum)
+    {
+      maximum = fitness[0];
+      max = generations +1;
+    }
   for (int i=0; i<100; i++)
     {
       total = total + fitness[i];
@@ -1084,7 +939,7 @@ void Results(double fitness[], int generations, double mut_chance, string run_nu
     }
   Run <<"GENERATIONS: "<< generations << endl;
   Run <<"MUTATION PROBABILITY: " << mut_chance << endl;
-  Run <<"HIGHEST FITNESS SCORE: " << fitness[0]<< endl;
+  Run <<"HIGHEST FITNESS SCORE: " << maximum << " IN GEN: " << max << endl;
   Run <<"TOTAL COMBINED FITNESS SCORE: "<< total << endl;
   Run <<"AVERAGE FITNESS SCORE: " << average << endl;
 
@@ -1105,5 +960,22 @@ void Results(double fitness[], int generations, double mut_chance, string run_nu
       Run <<"INDIVIDUAL "<< j+1 << " : " << fitness[j] << endl;
     }
 
+  Run.close();
+}
+
+void data(int generations, string run_num, vector<double> high_score, vector<double> average_score)
+{
+  ofstream Run;
+  
+  Run.open("Run_"+run_num+".csv");
+
+  Run << "This is a csv file for generations. See the same numbered Run.txt for other information." << endl;
+  
+  Run << "Generation: Gen High: Gen average:" << endl;
+
+  for(int i=0; i<generations; i++)
+    {
+      Run << i << "," << high_score[i] << "," << average_score[i] << endl;
+    }
   Run.close();
 }
