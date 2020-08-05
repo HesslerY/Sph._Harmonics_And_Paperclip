@@ -1,0 +1,6 @@
+#!/bin/bash
+var=0.1
+
+var= python -c $((var + 0.1)) 
+
+echo $var

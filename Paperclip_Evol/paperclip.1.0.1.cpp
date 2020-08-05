@@ -164,7 +164,7 @@ vector<vector<vector<double> > > crossover(vector<vector<vector<double> > > & cr
 
 vector<vector<vector<double> > > simple_mutation(vector<vector<vector<double> > > & mutation, double mut_chance, double std_dev);
 
-void Results(double fitness[], int generations, double mut_chance, string run_num, vector<double> high_score, vector<double> average_score, int Tour, int Roul);
+void Results(double fitness[], int generations, double mut_chance, string run_num, vector<double> high_score, vector<double> average_score, int tour_num, int roul_num, double std_dev);
 
 void data(int generations, string run_num, vector<double> high_score, vector<double> average_score);
 //
@@ -173,7 +173,7 @@ int main()
 {
     const int numSeg = 10;
     int Gen = 0;
-    srand(time(NULL));
+    srand(1);
     
     // Enter the number of antenna segments
     cout << "Enter the number of generations:" << endl;
@@ -200,13 +200,18 @@ int main()
       {
 	cout << "Please enter the desired mutation probability in decimal notation (between 0.0-1.0): " ;
 	cin >> mut_chance;
+	mut_chance = mut_chance/100.0;
 	while(mut_chance > 1.0 || mut_chance < 0.0)
 	  {
 	    cout << "Enter a valid mutation probability: ";
 	    cin >> mut_chance;
+	    mut_chance = mut_chance/100.0;
+	    cout << mut_chance<< endl;
 	  }
 	cout << "Please enter the (positive) standard deviation: ";
 	cin >> std_dev;
+	std_dev = std_dev/100.0;
+	cout << std_dev << endl;
       }
     if(Roul == 1 && Tour == 1)
       {
@@ -693,7 +698,7 @@ int main()
         cout << "{" << xcoord[numSeg] << ", " << ycoord[numSeg] << ", "<< zcoord[numSeg] << "}}] " << endl;
     }
 
-    Results(rankedFinalScores, Gen, mut_chance, run_num, high_score, average_score, Tour, Roul);
+    Results(rankedFinalScores, Gen, mut_chance, run_num, high_score, average_score, tour_num, roul_num, std_dev);
     data(Gen, run_num, high_score, average_score);
   
     return 0;
@@ -900,7 +905,7 @@ vector<vector<vector<double> > > simple_mutation(vector<vector<vector<double> > 
 		  
 }
 
-void Results(double fitness[], int generations, double mut_chance, string run_num, vector<double> high_score, vector<double> average_score, int Tour, int Roul)
+void Results(double fitness[], int generations, double mut_chance, string run_num, vector<double> high_score, vector<double> average_score, int tour_num, int roul_num, double std_dev)
 {
   double total=0;
   double average;
@@ -929,16 +934,10 @@ void Results(double fitness[], int generations, double mut_chance, string run_nu
   ofstream Run;
   Run.open("Run_"+ run_num + ".txt");
   Run <<"This is a test of paperclips1.0.1.cpp \n";
-  if(Tour == 1)
-    {
-      Run << "USING TOURNAMENT: "<< endl;
-    }
-  if(Roul == 1)
-    {
-      Run << "USING ROULETTE: " << endl;
-    }
+  Run <<"TOURNAMENT / ROULETTE: " << tour_num <<"/"<< roul_num << endl;
   Run <<"GENERATIONS: "<< generations << endl;
   Run <<"MUTATION PROBABILITY: " << mut_chance << endl;
+  Run <<"STANDARD DEVIATION: " << std_dev << endl;
   Run <<"HIGHEST FITNESS SCORE: " << maximum << " IN GEN: " << max << endl;
   Run <<"TOTAL COMBINED FITNESS SCORE: "<< total << endl;
   Run <<"AVERAGE FITNESS SCORE: " << average << endl;

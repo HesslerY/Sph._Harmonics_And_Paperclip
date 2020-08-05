@@ -2,6 +2,11 @@
 ## Author: Alex Machtay (machtay.1@osu.edu)
 ## Date: 7/24/20
 
+## To run, do the following:
+### python3 paperclip_data.py (source) (destination) (run name)
+## for example:
+### python3 paperclip_data.py . . Run_1.csv
+
 
 # imports
 import numpy as np
